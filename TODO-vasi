@@ -1,0 +1,73 @@
+* Browser support
+	* Safari
+		- title-flashing notification
+	* Opera? IE?
+
+* Cheating
+	- Search on OneAcross, Google
+	- Reveal single clue
+	- Reveal errors
+	- Better UI for all cheating (including giving up)
+	- Better voting on cheating
+	- Some way to disable cheating
+	- Single-player cheating
+
+* Download new crosswords
+	- Cron job?
+	- Support password/cookie protected crosswords?
+	- Parallelized download across sites
+		- deadlock :-(
+	- Parse titles
+	- Meta data?
+		- Description
+		- Difficulty
+		- Quick/standard/cryptic
+		- Rating? Category? Size?
+
+* Format support
+	- Across Lite TEXT format
+	- Convert from PDF?
+		http://www.red-sweater.com/forums/viewtopic.php?id=507
+	- Detect where Java apps are getting their crosswords? Flash apps?
+		eg: http://www.uclick.com/puzzles/tmdxi/data/
+	- Rebuses
+	- Notepad support (see Aug 14, 2008)
+
+* Cleanup source
+  - turn huge 'server' into multiple files
+	- prototype-ify more JS
+
+* Sessions
+	* Creation
+		- One step, not two
+		- Allow create with GET: Make up a URL, you have a session
+		- Allow anonymous session. Name generated automatically, doesn't
+			appear in session list.
+	- Auto-delete old sessions
+	- Single-player session saving
+	- notice when someone quits and re-joins, assign same colour
+
+* Choosing crossword
+	- Sort by date. Determine date by mod time?
+	- Segment by 'brand' of crossword.
+
+* Misc
+	- Auto-fetch new crossword once one is finished successfully
+	- Embed crossword (front page!)
+	- Cache crossword list, if startup speed becomes an issue.
+	- Fix '502 gateway' error after long inactivity.
+	- Diagnose 'Got 0 response "" from server" 
+	- Allow reserving a clue?
+	- Link to home page! (both this server, and the project)
+	- Don't let someone overwrite someone else too quickly
+
+nytimes:
+	- detect scrambling
+	- check done with hash?
+	- password protect?
+
+Bugs:
+	- SPEED of animation -- is scriptaculous faster?
+	- firefox: 3 x tab => text box
+	- delete key in name thingy
+
