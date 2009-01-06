@@ -52,7 +52,7 @@ def crossword_to_hash cw
     'height'    => cw.height,
     'answer' =>
       (0...cw.height).map do |y|
-        (0...cw.height).map do |x|
+        (0...cw.width).map do |x|
           square = cw.squares[x][y]
           square && square.answer ? ' ' : '.'
         end.join('')
