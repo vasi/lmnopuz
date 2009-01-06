@@ -54,7 +54,7 @@ Roster.prototype.handleNameClick = function(e) {
 
 Roster.prototype.handleNameKeyPress = function(e) {
   // Stop the event so the crossword widget won't receive it.
-  e.stop();
+  e.stopPropagation();
 
   if (e.keyCode == Event.KEY_RETURN) {
     var name = this.nameinput.value;
