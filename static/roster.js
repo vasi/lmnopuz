@@ -54,16 +54,16 @@ Roster.prototype.handleNameClick = function(e) {
 
 Roster.prototype.handleNameKeyPress = function(e) {
   // Stop the event so the crossword widget won't receive it.
-  if (e.stopPropagation) e.stopPropagation();  // mozilla
-  if (e.cancelBubble) e.cancelBubble = true;   // ie (untested)
+  e.stop();
 
-  if (e.keyCode == 13) {
+  if (e.keyCode == Event.KEY_RETURN) {
     var name = this.nameinput.value;
     if (name.length > 0) {
       if (name != Globals.mp.getName()) {
         Globals.mp.changeName(name);
       }
       this.nameinput.style.display = 'none';
+      this.nameinput.blur();
       this.nametext.innerHTML = 'Name:';
       this.namelink.style.display = 'inline';
       this.namediv.className = 'namediv';
