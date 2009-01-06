@@ -25,6 +25,8 @@
 #
 # See Crossword for details.
 
+require 'iconv'
+
 # A crossword.
 class Crossword
   # Title of the crossword (ISO-8859-1).
@@ -103,7 +105,7 @@ class Crossword
       end
     end
 
-    # XXX right here we should convert the strings to UTF-8.
+    strings = Iconv.iconv('utf8', 'latin1', *strings)
     
     clueoffset = ofs
     @title = strings.shift
