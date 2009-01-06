@@ -19,7 +19,6 @@ function Roster() {
     Globals.roster.handleNameClick(e);
     return false;
   };
-  this.namelink.innerHTML = this.defaultname;
   this.namelink.setAttribute('href', '#');
   this.namediv.appendChild(this.namelink);
 

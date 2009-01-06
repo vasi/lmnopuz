@@ -99,3 +99,20 @@ function unescapeHTML(str) {
   return str.replace(/&amp;/g, '&').replace(/&quot;/g, '"').
       replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 };
+
+function setCookie(name, val, date, path) {
+	path = path || '/';
+	if (date == null) {
+		// default to three years
+		date = new Date();
+		date.setUTCFullYear(date.getUTCFullYear() + 3);
+	}
+	document.cookie = name + '=' + encodeURIComponent(val)
+		+ '; expires=' + date.toUTCString()
+		+ '; path=' + path;
+}
+
+function getCookie(name) {
+	var re = '(^|;)\\s*' + name + '\\s*=\\s*([^\\s;]+)';
+	return document.cookie.match(re)[2];
+}

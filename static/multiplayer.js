@@ -22,6 +22,7 @@ function Multiplayer(serverurl, widget, roster, console, initialcallback) {
   }
   this.initialcallback = initialcallback;
   this.fetchUpdates(true);
+  this.COOKIE_DEFAULTNAME = 'lmnopuz-defaultname';
 };
 
 // Start an XMLHttpRequest that stays blocked until the server has an update.
@@ -93,12 +94,17 @@ Multiplayer.prototype.addEvent = function(type, vals, immediate) {
 }
 
 Multiplayer.prototype.changeName = function(name) {
+  setCookie(this.COOKIE_DEFAULTNAME, name);
   this.addEvent('name', [name], true);
 }
 
 Multiplayer.prototype.getName = function() {
   if (this.uid) return this.players[this.uid].name;
   return undefined;
+}
+
+Multiplayer.prototype.getDefaultName = function() {
+	return getCookie(this.COOKIE_DEFAULTNAME);
 }
 
 Multiplayer.prototype.getColor = function() {

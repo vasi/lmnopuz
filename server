@@ -152,11 +152,12 @@ class SessionState
   class Roster
     class User
       DEFAULT_COLOR = '#ddd'
+      DEFAULT_NAME = 'anonymous'
       attr_accessor :name, :session_uid, :roster_version, :color, \
         :last_message_num, :letters_version, :poll_end, :gave_up, \
         :cursor_x, :cursor_y, :cursor_version, :cursors_version
-      def initialize
-        @name = 'anonymous'
+      def initialize(name)
+        @name = name || DEFAULT_NAME
         @session_uid = nil
         @roster_version = nil
         @color = DEFAULT_COLOR
@@ -212,9 +213,9 @@ class SessionState
       @version += 1
     end
 
-    def create_user(uid)
+    def create_user(uid, name)
       return if @users[uid]
-      user = User.new
+      user = User.new(name)
       user.session_uid = @available_session_uids.shift
       user.color = @available_colors.shift if @available_colors.length > 0
       @users[uid] = user
@@ -690,10 +691,10 @@ class SessionState
     state
   end
 
-  def create_user_if_new(uid)
+  def create_user_if_new(uid, name)
     return if @roster.get_user(uid)
     log "creating user #{uid}"
-    user = @roster.create_user(uid)
+    user = @roster.create_user(uid, name)
     @messages.add("#{user.get_html} has joined the game.")
     # We need to let the other players know that we've joined.
     announce_update
@@ -898,15 +899,27 @@ class HttpHandler < Mongrel::HttpHandler
 end
 
 class SessionHandler < HttpHandler
-  COOKIE_NAME = 'lmnopuz-uid'
+  COOKIE_UID = 'lmnopuz-uid'
+  COOKIE_DEFAULTNAME = 'lmnopuz-defaultname'
+  
   def initialize(cwh, session_dir)
     @sessmgr = SessionManager.new session_dir
     @crossword_handler = cwh
   end
+  
+  def get_cookie(req, name)
+    cookie = CGI::Cookie.parse(req.params['HTTP_COOKIE'])[name]
+    return nil unless cookie && !cookie.empty?
+    return URI.decode(cookie.value[0])
+  end
 
   def get_request_uid(request)
-    cookie = CGI::Cookie.parse(request.params['HTTP_COOKIE'])[COOKIE_NAME]
-    (cookie and not cookie.empty?) ? cookie.value[0].to_i : nil
+    c = get_cookie(request, COOKIE_UID)
+    c ? c.to_i : nil
+  end
+  
+  def get_default_name(req)
+    get_cookie(req, COOKIE_DEFAULTNAME)
   end
 
   def create_uid
@@ -944,14 +957,14 @@ class SessionHandler < HttpHandler
       state = { 'reload' => true }
       forced_reload = true
     else
-      session.create_user_if_new uid
+      session.create_user_if_new(uid, get_default_name(request))
       # Block here, waiting for a state update.
       state = session.wait_for_new_state(uid, full)
     end
 
     response.start do |head, out|
       head['Content-type'] = 'text/javascript'
-      head['Set-Cookie'] = "#{COOKIE_NAME}=#{uid}" if set_uid_in_cookie
+      head['Set-Cookie'] = "#{COOKIE_UID}=#{uid}" if set_uid_in_cookie
       out.puts state.to_json if state
     end
     log "req_state end for #{uid} with #{state.inspect}"
