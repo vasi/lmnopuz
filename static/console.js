@@ -41,33 +41,30 @@ function Console(max_lines, chatbox) {
       // i should figure out why this is the case.
       handleBlur();
     };
-    this.entry.onkeypress = function(e) {
-      // Stop the event so the crossword widget won't receive it.
-      if (e.stopPropagation) e.stopPropagation();  // mozilla
-      if (e.cancelBubble) e.cancelBubble = true;   // ie (untested)
-
-      if (e.keyCode == 13 && this.console.onMessageSent) {  // enter
+    this.entry.keyPress = function(e) {
+      if (e.keyCode == Event.KEY_RETURN && this.console.onMessageSent) {
+		// enter
         var text = this.value;
         if (text.length > 0) this.console.onMessageSent(text);
         this.value = '';
-        return false;
-      } else if ((e.keyCode == 27 || e.keyCode == 9)) {  // escape or tab
-        Globals.widget.focus();
+		e.stop(); // Stop the event so the crossword widget won't receive it.
         return false;
       }
       return true;
     }
-
-    // keypress events don't fire for the up and down arrow keys, so we need
-    // to listen for keyup to give the focus back to the puzzle.
-    this.entry.onkeyup = function(e) {
-      if (e.keyCode == 38 || e.keyCode == 63232 ||  // up
-          e.keyCode == 40 || e.keyCode == 63233) {  // down
+    this.entry.keyDown = function(e) {
+      if (e.keyCode == Event.KEY_TAB || e.keyCode == 27)  { // escape or tab
         Globals.widget.focus();
+		this.blur();
+		e.stop();
         return false;
       }
       return true;
     }
+	$(this.entry).observe('keypress',
+		this.entry.keyPress.bindAsEventListener(this.entry));
+	$(this.entry).observe('keydown',
+		this.entry.keyDown.bindAsEventListener(this.entry));
     this.container.appendChild(this.entry);
   }
 

@@ -37,9 +37,6 @@ function CrosswordWidget() {
 CrosswordWidget.prototype.loadCrossword = function(crossword) {
   var widget = this;
 
-  document.onkeypress = function(e) { return widget.keyPress(e); };
-  document.onmousedown = function() { widget.focus(); };
-
   this.crossword = crossword;
 
   var table = document.createElement('table');
@@ -80,6 +77,10 @@ CrosswordWidget.prototype.loadCrossword = function(crossword) {
   this.hiddeninput = document.createElement('input');
   this.hiddeninput.style.display = 'none';
   document.body.appendChild(this.hiddeninput);
+
+  $(document).observe('keypress', this.keyPress.bindAsEventListener(this));
+  $(document).observe('keydown', this.keyDown.bindAsEventListener(this));
+  $(document).observe('mousedown', this.focus.bind(this));
 
   // Start the fader.
   window.setTimeout(this.fadeSquareColors, 0);
@@ -275,6 +276,7 @@ CrosswordWidget.prototype.getLetters = function(number, across) {
 
 CrosswordWidget.prototype.keyPress = function(e) {
   if (!this.focused) return true;
+  if (e.element().hasClassName('entry')) return true; // ignore keys in entry
   var square = this.focused;
 
   if (!e) e = window.event;
@@ -284,9 +286,6 @@ CrosswordWidget.prototype.keyPress = function(e) {
 
   // charCode is set if a Unicode character was pressed
   var charcode = e.charCode;
-  // keyCode is set for specials (tab, arrows, etc.).
-  // Crazy-looking key codes (63xxx) are for Safari.
-  var keycode = e.keyCode;
 
   if (charcode == 32) {  // space pressed: switch direction
     this.direction_horiz = !this.direction_horiz;
@@ -322,27 +321,50 @@ CrosswordWidget.prototype.keyPress = function(e) {
     Globals.console.focus();
   } else if (charcode == 126) {  // tilde
     if (!this.correct) this.toggleGuessForWord(square);
-  } else if (keycode == 9 || keycode == 25) { // tab
+  } else {
+    return true;
+  }
+  e.stop();
+  return false;
+}
+
+CrosswordWidget.prototype.keyDown = function(e) {
+  if (!this.focused) return true;
+  if (e.element().hasClassName('entry')) return true; // ignore keys in entry
+  var square = this.focused;
+
+  if (!e) e = window.event;
+  // don't eat ctl-r and friends...
+  if (e.altKey || e.ctrlKey || e.metaKey)
+    return true;
+  
+  // keyCode is set for specials (tab, arrows, etc)
+  var keycode = e.keyCode;
+  
+  if (keycode == Event.KEY_TAB) {
     var forwards = !e.shiftKey;
-    if (keycode == 25) forwards = false;  // safari has a weird shift-tab.
+    
+    // safari has a weird shift-tab (FIXME: does this do anything?)
+    if (keycode == 25) forwards = false;
+    
     this.setFocus(
       this.getNextWord(square, this.direction_horiz, forwards),
       false);
-  } else if (keycode == 35 || keycode == 63275) { // end
+  } else if (keycode == Event.KEY_END) {
     this.setFocus(
       this.getStartSquare(square, this.direction_horiz, false), false);
-  } else if (keycode == 36 || keycode == 63273) { // home
+  } else if (keycode == Event.KEY_HOME) {
     this.setFocus(
       this.getStartSquare(square, this.direction_horiz, true), false);
-  } else if (keycode == 37 || keycode == 63234) { // left
+  } else if (keycode == Event.KEY_LEFT) {
     this.focusNext(square, -1, 0, true);
-  } else if (keycode == 38 || keycode == 63232) { // up
+  } else if (keycode == Event.KEY_UP) {
     this.focusNext(square, 0, -1, true);
-  } else if (keycode == 39 || keycode == 63235) { // right
+  } else if (keycode == Event.KEY_RIGHT) {
     this.focusNext(square, 1, 0, true);
-  } else if (keycode == 40 || keycode == 63233) { // down
+  } else if (keycode == Event.KEY_DOWN) {
     this.focusNext(square, 0, 1, true);
-  } else if (keycode == 8) { // backspace
+  } else if (keycode == Event.KEY_BACKSPACE) {
     if (!this.correct) {
       if (e.shiftKey) {
         this.clearWord(square);
@@ -356,7 +378,7 @@ CrosswordWidget.prototype.keyPress = function(e) {
           this.onChanged(square.x, square.y, ' ');
       }
     }
-  } else if (keycode == 46 || keycode == 63272) { // delete
+  } else if (keycode == Event.KEY_DELETE) {
     if (!this.correct) {
       if (e.shiftKey) {
         this.clearWord(square);
@@ -369,6 +391,7 @@ CrosswordWidget.prototype.keyPress = function(e) {
   } else {
     return true;
   }
+  e.stop();
   return false;
 };
 
