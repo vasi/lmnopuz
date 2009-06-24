@@ -66,8 +66,6 @@ class XWordInfoCrossword < Crossword
 				sq.answer = "?" if sq.answer == "\302\240" # non-break space
 			end
 		end
-		
-		require 'pp'; pp self
 	end
 end
 
