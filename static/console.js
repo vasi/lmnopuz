@@ -42,6 +42,12 @@ function Console(max_lines, chatbox) {
       handleBlur();
     };
     this.entry.keyPress = function(e) {
+      // Opera gets a keypress after blur, and this refocuses. Stop this!
+      if (!this.console.focused) {
+        e.stop();
+        return false;
+      }
+      
       if (e.keyCode == Event.KEY_RETURN && this.console.onMessageSent) {
 		// enter
         var text = this.value;

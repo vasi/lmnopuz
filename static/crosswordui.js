@@ -285,7 +285,7 @@ CrosswordWidget.prototype.keyPress = function(e) {
     return true;
 
   // charCode is set if a Unicode character was pressed
-  var charcode = e.charCode;
+  var charcode = e.charCode || e.keyCode; // opera, IE have only keyCode
 
   if (charcode == 32) {  // space pressed: switch direction
     this.direction_horiz = !this.direction_horiz;
@@ -428,7 +428,7 @@ CrosswordWidget.prototype.isWordFilled = function(square, across) {
        x += dx, y += dy) {
     var s = this.square(x, y);
     if (!s) break;
-    if (!s.letter.text || s.letter.text.data == '' || s.guess) {
+    if (!s.letter.ltext || s.letter.ltext.data == '' || s.guess) {
       is_filled = false;
       break;
     }
@@ -463,8 +463,8 @@ CrosswordWidget.prototype.toggleGuessForWord = function(square) {
        x += dx, y += dy) {
     var s = this.square(x, y);
     if (!s) break;
-    if (!s.letter.text) continue;
-    if (s.letter.text.data != '' && s.guess) {
+    if (!s.letter.ltext) continue;
+    if (s.letter.ltext.data != '' && s.guess) {
       to_guess = false;
       break;
     }
@@ -476,13 +476,13 @@ CrosswordWidget.prototype.toggleGuessForWord = function(square) {
        x += dx, y += dy) {
     var s = this.square(x, y);
     if (!s) break;
-    if (!s.letter.text) continue;
+    if (!s.letter.ltext) continue;
 
     // Find out whether the answer in the other direction that contains
     // this square is filled with non-guesses.
     var cross_filled = this.isWordFilled(s, !this.direction_horiz);
 
-    var ch = s.letter.text.data;
+    var ch = s.letter.ltext.data;
     if (ch != '') {
       var guess = !cross_filled && to_guess;
       s.fill(ch, undefined, guess);
@@ -621,12 +621,12 @@ Square = function(widget, x, y, letter, number) {
   // We also create a plain text node and call it "text".
   // We'd like to do that right here, but Safari disappears the text node
   // if it's created empty.  So we instead create it lazily below.
-  this.letter.text = undefined;  //(document.createTextNode(' '));
+  this.letter.ltext = undefined;  //(document.createTextNode(' '));
   this.td.appendChild(this.letter);
 };
 
 Square.prototype.getLetter = function() {
-  return this.letter.text ? this.letter.text.data : '';
+  return this.letter.ltext ? this.letter.ltext.data : '';
 };
 
 // Fill a square with a given letter.  'color' is the background color for
@@ -634,11 +634,11 @@ Square.prototype.getLetter = function() {
 // or undefined (to leave the background unchanged).  If 'is_guess' is
 // true, the letter will be written in gray instead of black.
 Square.prototype.fill = function(letter, color, is_guess) {
-  // We create letter.text lazily, but must be careful to never create
+  // We create letter.ltext lazily, but must be careful to never create
   // one that's empty, because otherwise Safari will never show it.  :(
   if (letter == '' || letter == ' ') {  // erasing
-    if (this.letter.text)
-      this.letter.text.data = '';
+    if (this.letter.ltext)
+      this.letter.ltext.data = '';
     this.td.style.background = 'white';
     this.base_color = null;
     return;
@@ -649,12 +649,12 @@ Square.prototype.fill = function(letter, color, is_guess) {
 
   var changed = false;
   letter = letter.toUpperCase();
-  if (!this.letter.text) {
-    this.letter.text = document.createTextNode(letter);
-    this.letter.appendChild(this.letter.text);
+  if (!this.letter.ltext) {
+    this.letter.ltext = document.createTextNode(letter);
+    this.letter.appendChild(this.letter.ltext);
     changed = true;
-  } else if (this.letter.text.data != letter) {
-    this.letter.text.data = letter;
+  } else if (this.letter.ltext.data != letter) {
+    this.letter.ltext.data = letter;
     changed = true;
   }
 
