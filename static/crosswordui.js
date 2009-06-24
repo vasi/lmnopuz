@@ -321,6 +321,8 @@ CrosswordWidget.prototype.keyPress = function(e) {
     Globals.console.focus();
   } else if (charcode == 126) {  // tilde
     if (!this.correct) this.toggleGuessForWord(square);
+  } else if (charcode == Event.KEY_TAB) {
+    // Opera will react to this tab, but we already handled it! So force a stop.
   } else {
     return true;
   }
