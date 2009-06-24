@@ -14,6 +14,7 @@ require 'thread'
 require 'yaml'
 
 require 'rubypuz/puz.rb'
+require 'rubypuz/xwordinfo'
 
 # Command-line flags.
 $opts = {
@@ -98,10 +99,9 @@ class CrosswordStore
   def load_crosswords(datapath)
     print "Loading crosswords... "; $stdout.flush
     crossword_count = 0
-    Dir["#{datapath}/*.puz"].sort.each do |path|
-      name = File::basename(path, '.puz')
+    Dir["#{datapath}/*"].sort.each do |path|
+	  name = load_crossword(path) or next
       print "#{name} "; $stdout.flush
-      load_crossword(name, path)
       crossword_count += 1
     end
     if crossword_count < 1
@@ -112,11 +112,17 @@ class CrosswordStore
     end
   end
 
-  # Load a single crossword into @crosswords hash
-  def load_crossword(name, path)
-    crossword = Crossword.new
+  # Load a single crossword into @crosswords hash, return the name
+  def load_crossword(path)
+	ext = File.extname(File.basename(path)) # extname can fail on some full paths
+	types = { '.puz' => Crossword, '.xwordinfo' => XWordInfoCrossword } # TODO: registry
+	klass = types[ext] or return nil # not a crossword
+	name = File.basename(path, ext)
+	
+    crossword = klass.new
     File::open(path) { |f| crossword.parse(f) }
     @crosswords[name] = crossword
+    return name
   end
 
   def in_order
