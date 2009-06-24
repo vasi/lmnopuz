@@ -1,6 +1,6 @@
 # Adapt xwordinfo.com HTML to the Crossword class
 #
-# TODO: circles, utf8, comment
+# TODO: circles, charset, comment
 
 require 'rubypuz/puz'
 require 'hpricot'
@@ -23,12 +23,17 @@ class XWordInfoCrossword < Crossword
 			
 			elems = doc.at("#ctl00_CPHContent_#{dir.capitalize}Clues").children
 			until elems.empty?
-				clue_elem, ans_elem, br = elems.slice!(0, 3)
+				clue_elems = []
+				while e = elems.shift
+					break if Hpricot::Elem === e && e.name == "br"
+					clue_elems << e
+				end
+				
+				clue_elem, ans_elem = clue_elems
 				md = clue_elem.to_s.match(/^(\d+)\.\s*(.+?)[\s:]*$/) \
-					or raise FailedParseException, "can't parse clue: '#{clue}'"				
+					or raise FailedParseException, "can't parse clue: '#{clue_elem}'"				
 				num = md[1].to_i
 				clue = md[2]
-				ans = ans_elem.inner_text # ignore
 				
 				clues[num] = clue
 			end
@@ -58,8 +63,11 @@ class XWordInfoCrossword < Crossword
 				end
 				
 				sq.answer = cell.inner_text # TODO: rebus?
+				sq.answer = "?" if sq.answer == "\302\240" # non-break space
 			end
 		end
+		
+		require 'pp'; pp self
 	end
 end
 
