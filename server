@@ -45,26 +45,23 @@ def crossword_to_hash cw
       [num, clues[num]]
     end
   end
+  
+  def xword_map(cw)
+    (0...cw.height).map do |y|
+        (0...cw.width).map { |x| yield(cw.squares[x][y]) }
+    end
+  end
+  
   {
     'title'     => cw.title,
     'author'    => cw.author,
     'copyright' => cw.copyright,
     'width'     => cw.width,
     'height'    => cw.height,
-    'answer' =>
-      (0...cw.height).map do |y|
-        (0...cw.width).map do |x|
-          square = cw.squares[x][y]
-          square && square.answer ? ' ' : Crossword::SQUARE_FILLED
-        end.join('')
-      end.join(''),
-    'numbers' =>
-      (0...cw.height).map do |y|
-        (0...cw.width).map do |x|
-          square = cw.squares[x][y]
-          square && square.number ? square.number : 0
-        end
-      end,
+    'answer' => xword_map(cw) do |sq|
+        sq && sq.answer ? ' ' : Crossword::SQUARE_FILLED
+      end.flatten.join(''),
+    'numbers' => xword_map(cw) { |sq| sq && sq.number || 0 },
     'down'   => make_clueslist(cw.down),
     'across' => make_clueslist(cw.across)
   }
