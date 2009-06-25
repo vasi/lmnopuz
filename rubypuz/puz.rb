@@ -53,6 +53,8 @@ class Crossword
   # squares[0][0] is the top-left, squares[@width-1][@height-1] the
   # bottom-right.  An entry is nil if there is no square (a blank) there.
   attr_accessor :squares
+  
+  attr_accessor :note # Crossword notepad
 
   # This exception is raised if there was a problem parsing the file.
   class FailedParseException < Exception; end
@@ -96,12 +98,15 @@ class Crossword
     ofs = HEADERLENGTH
     @key = key = data[ofs, @width*@height]
     ofs += key.length
-    dashes = data[ofs, @width*@height]  # unused... ?
+    dashes = data[ofs, @width*@height]  # we don't use this ?
     ofs += dashes.length
 
-    # sometimes the comment contains nuls.
-    # so we limit the split to clues + 3 headers + optional comment.
-    strings = data[ofs..-1].split(/\0/, cluecount+3+1)
+    stringdata = data[ofs..-1]
+    if idx = stringdata.index("\0\0")
+      extradata = stringdata[idx+2..-1]
+      stringdata = stringdata[0,idx]
+    end
+    strings = stringdata.split(/\0/)
 
     if do_checksum
       file_csum = compute_checksum(data, ofs, strings[0...(cluecount+3)])
@@ -111,28 +116,26 @@ class Crossword
     end
 
     strings = Iconv.iconv('utf8', 'latin1', *strings)
-    
-    clueoffset = ofs
-    @title = strings.shift
-    clueoffset += @title.length + 1
-    @author = strings.shift
-    clueoffset += @author.length + 1
-    @copyright = strings.shift
-    clueoffset += @copyright.length + 1
-
+    @title, @author, @copyright = strings.slice!(0,3)
     if strings.length > cluecount
-      @comment = strings.pop
-      @comment.gsub!(/\0$/, '') # the last has a trailing nul, too
+      @note = strings.pop
     end
-
+    
+    # check for circles
+    if extradata && idx = extradata.index("\0GEXT")
+      circles = extradata[idx+9, @width*@height]
+    end
+    
     # use the answer key to construct the square array,
     # then figure the rest once we have the complete picture.
     @squares = Array.new(@width) do |x|
       Array.new(@height) do |y|
-        char = key[y*@width + x,1]
+        idx = y*@width + x
+        char = key[idx,1]
         unless char == '.'
           square = Square.new
           square.answer = char
+          square.circle = true if circles && circles[idx,1] == "\x80"
           square
         end
       end
