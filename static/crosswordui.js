@@ -54,9 +54,12 @@ CrosswordWidget.prototype.loadCrossword = function(crossword) {
     this.squares[y] = [];
     var tr = document.createElement('tr');
     for (var x = 0; x < crossword.width; ++x) {
-      var answer = crossword.answer.substr(y*crossword.width + x, 1);
+      var idx = y*crossword.width + x;
+      var answer = crossword.answer.substr(idx, 1);
+      var circle = crossword.circles.substr(idx, 1) == '.';
       if (answer != this.SQUARE_FILLED) {
-        var square = new Square(this, x, y, answer, crossword.numbers[y][x]);
+        var square = new Square(this, x, y, answer, crossword.numbers[y][x],
+          circle);
         tr.appendChild(square.td);
         this.squares[y][x] = square;
       } else {
@@ -148,9 +151,9 @@ CrosswordWidget.prototype.focusNext = function(square, dx, dy, skip) {
 
 CrosswordWidget.prototype.changeSquareHighlight = function(square, highlight) {
   if (highlight) {
-    square.td.className = 'highlighted';
+    $(square.td).addClassName('highlighted');
   } else {
-    square.td.className = '';
+    $(square.td).removeClassName('highlighted');
   }
 };
 
@@ -599,7 +602,7 @@ CrosswordWidget.prototype.fadeSquareColors = function() {
 };
 
 // Constructor for our per-square data.
-Square = function(widget, x, y, letter, number) {
+Square = function(widget, x, y, letter, number, circle) {
   this.x = x;
   this.y = y;
   this.answer = letter;
@@ -611,12 +614,16 @@ Square = function(widget, x, y, letter, number) {
   this.td.onmousedown = function() { widget.setFocus(this.square, true); };
 
   this.answer = letter;
+  
+  var cell = document.createElement('div');
+  cell.className = 'cell';
+  this.td.appendChild(cell);
 
   if (number != 0) {
     var numberdiv = document.createElement('div');
     numberdiv.className = 'number';
     numberdiv.appendChild(document.createTextNode(number));
-    this.td.appendChild(numberdiv);
+    cell.appendChild(numberdiv);
   }
 
   this.letter = document.createElement('div');
@@ -625,7 +632,14 @@ Square = function(widget, x, y, letter, number) {
   // We'd like to do that right here, but Safari disappears the text node
   // if it's created empty.  So we instead create it lazily below.
   this.letter.ltext = undefined;  //(document.createTextNode(' '));
-  this.td.appendChild(this.letter);
+  cell.appendChild(this.letter);
+  
+  if (circle) {
+    var circle = document.createElement('img');
+    circle.className = "circle";
+    circle.src = "/static/circle.png";
+    cell.appendChild(circle);
+  }
 };
 
 Square.prototype.getLetter = function() {

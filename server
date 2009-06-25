@@ -63,7 +63,9 @@ def crossword_to_hash cw
       end.flatten.join(''),
     'numbers' => xword_map(cw) { |sq| sq && sq.number || 0 },
     'down'   => make_clueslist(cw.down),
-    'across' => make_clueslist(cw.across)
+    'across' => make_clueslist(cw.across),
+    'circles' => xword_map(cw) { |sq| sq && sq.circle ? '.' : ' ' }.
+      flatten.join('')
   }
 end
 

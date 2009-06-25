@@ -70,6 +70,8 @@ class Crossword
     def number
       @down or @across
     end
+    
+    attr_accessor :circle # true if this is a circled square
   end
 
   WIDTHOFFSET = 0x2c   # :nodoc:

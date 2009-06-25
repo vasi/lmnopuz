@@ -62,6 +62,8 @@ class XWordInfoCrossword < Crossword
 					sq.across = num if @across.include?(num)
 				end
 				
+				sq.circle = true if cell['class'] && cell['class'].include?('circle')
+				
 				sq.answer = cell.inner_text # TODO: rebus?
 				sq.answer = SQUARE_UNKNOWN if sq.answer == "\302\240" # non-break space
 			end
