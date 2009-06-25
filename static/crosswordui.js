@@ -32,6 +32,8 @@ function CrosswordWidget() {
 
   // Which squares are currently highlighted.
   this.highlighted = [];
+  
+  this.SQUARE_FILLED = '.';
 };
 
 CrosswordWidget.prototype.loadCrossword = function(crossword) {
@@ -53,7 +55,7 @@ CrosswordWidget.prototype.loadCrossword = function(crossword) {
     var tr = document.createElement('tr');
     for (var x = 0; x < crossword.width; ++x) {
       var answer = crossword.answer.substr(y*crossword.width + x, 1);
-      if (answer != ".") {
+      if (answer != this.SQUARE_FILLED) {
         var square = new Square(this, x, y, answer, crossword.numbers[y][x]);
         tr.appendChild(square.td);
         this.squares[y][x] = square;
@@ -253,7 +255,7 @@ CrosswordWidget.prototype.getNextWord =
   }
 };
 
-// Get the filled-in letters for the passed-in word. "." is used for
+// Get the filled-in letters for the passed-in word. "_" is used for
 // blanks.
 CrosswordWidget.prototype.getLetters = function(number, across) {
   var square = this.getSquareForClue(number, across);
@@ -269,7 +271,7 @@ CrosswordWidget.prototype.getLetters = function(number, across) {
     var square = this.square(x, y);
     if (!square) break;
     var letter = square.getLetter();
-    word += (letter != '') ? letter : '.';
+    word += (letter != '') ? letter : '_';
   }
   return word;
 };
@@ -311,8 +313,7 @@ CrosswordWidget.prototype.keyPress = function(e) {
       var msg = 'Check out ' + num + " " +
         (this.direction_horiz ? 'Across' : 'Down') + ": " +
         Globals.clues.getClueText(num, this.direction_horiz) + ', ' +
-        this.getLetters(
-            num, this.direction_horiz).replace(/\./g, '_').split('').join(' ');
+        this.getLetters(num, this.direction_horiz).split('').join(' ');
       this.onMessageSent(msg);
     }
   } else if (charcode == 46) {  // period

@@ -1,7 +1,13 @@
+* Crossword features
+	* Notepads
+	* Circles
+	* Rebuses
+	* Answer checksums
+
 * Browser support
 	* Safari
 		- title-flashing notification
-	* Opera? IE?
+	* IE?
 
 * Cheating
 	- Search on OneAcross, Google
@@ -31,7 +37,6 @@
 	- Detect where Java apps are getting their crosswords? Flash apps?
 		eg: http://www.uclick.com/puzzles/tmdxi/data/
 	- Rebuses
-	- Notepad support (see Aug 14, 2008)
 
 * Cleanup source
   - turn huge 'server' into multiple files

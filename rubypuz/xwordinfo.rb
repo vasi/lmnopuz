@@ -63,7 +63,7 @@ class XWordInfoCrossword < Crossword
 				end
 				
 				sq.answer = cell.inner_text # TODO: rebus?
-				sq.answer = "?" if sq.answer == "\302\240" # non-break space
+				sq.answer = SQUARE_UNKNOWN if sq.answer == "\302\240" # non-break space
 			end
 		end
 	end

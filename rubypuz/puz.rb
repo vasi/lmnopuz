@@ -29,6 +29,9 @@ require 'iconv'
 
 # A crossword.
 class Crossword
+  SQUARE_UNKNOWN = '?'
+  SQUARE_FILLED = '.'
+  
   # Title of the crossword (ISO-8859-1).
   attr_accessor :title
   # Author of the crossword (ISO-8859-1).

@@ -55,7 +55,7 @@ def crossword_to_hash cw
       (0...cw.height).map do |y|
         (0...cw.width).map do |x|
           square = cw.squares[x][y]
-          square && square.answer ? ' ' : '.'
+          square && square.answer ? ' ' : Crossword::SQUARE_FILLED
         end.join('')
       end.join(''),
     'numbers' =>
