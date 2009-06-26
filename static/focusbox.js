@@ -1,4 +1,4 @@
-function FocusBox(color, border, zindex) {
+function FocusBox(color, border, zindex, container) {
   this.left = this.createEdge(color, zindex);
   this.right = this.createEdge(color, zindex);
   this.top = this.createEdge(color, zindex);
@@ -7,12 +7,13 @@ function FocusBox(color, border, zindex) {
   this.cur_x = this.cur_y = this.cur_w = this.cur_h = 0;
   this.des_x = this.des_y = this.des_w = this.des_h = 0;
 
-  this.border = border;
-
-  document.body.appendChild(this.left);
-  document.body.appendChild(this.right);
-  document.body.appendChild(this.top);
-  document.body.appendChild(this.bottom);
+  this.border = border; // width
+  
+  this.container = container;
+  container.appendChild(this.left);
+  container.appendChild(this.right);
+  container.appendChild(this.top);
+  container.appendChild(this.bottom);
 };
 
 FocusBox.prototype.createEdge = function(color, zindex) {
@@ -106,3 +107,75 @@ FocusBox.prototype.moveTo = function(x, y, w, h, animate) {
     this.drawBox(x, y, w, h);
   }
 };
+
+FocusBox.prototype.moveToElems = function(elem1, elem2, animate) {
+  var bbox = this.bbox(elem1, elem2);
+  var half = Math.round(this.border / 2);
+  this.moveTo(
+    bbox.xmin + half,
+    bbox.ymin + half,
+    bbox.xmax - bbox.xmin - 2 * half,
+    bbox.ymax - bbox.ymin - 2 * half,
+    animate);
+};
+
+FocusBox.prototype.min = function(a, b) { return a < b ? a : b; };
+FocusBox.prototype.max = function(a, b) { return a > b ? a : b; };
+
+FocusBox.prototype.bbox = function() {
+  if (arguments.length == 0) return null;
+  var bbox = this.bboxElem(arguments[0]);
+  for (var i = 1; i < arguments.length; ++i) {
+    if (!arguments[i]) continue;
+    var box = this.bboxElem(arguments[i]);
+    bbox.xmin = this.min(bbox.xmin, box.xmin);
+    bbox.ymin = this.min(bbox.ymin, box.ymin);
+    bbox.xmax = this.max(bbox.xmax, box.xmax);
+    bbox.ymax = this.max(bbox.ymax, box.ymax);
+  }
+  return bbox;
+};
+
+FocusBox.prototype.bboxElem = function(elem) {
+  var box = new Object();
+  box.xmin = findPosX(elem, this.container);
+  box.ymin = findPosY(elem, this.container);
+  box.xmax = box.xmin + elem.offsetWidth;
+  box.ymax = box.ymin + elem.offsetHeight;
+  return box;
+};
+
+FocusBox.prototype.hide = function() {
+  this.w = this.h = 0;
+};
+
+// from http://blog.firetree.net/2005/07/04/javascript-find-position/
+// written by Peter-Paul Koch & Alex Tingle
+function findPosX(obj, container) {
+  var curleft = 0;
+  if (obj.offsetParent) {
+    while(1) {
+      curleft += obj.offsetLeft;
+      if (!obj.offsetParent || obj.offsetParent == container) break;
+      obj = obj.offsetParent;
+    }
+  } else if (obj.x) {
+    curleft += obj.x;
+  }
+  return curleft;
+};
+
+function findPosY(obj, container) {
+  var curtop = 0;
+  if (obj.offsetParent) {
+    while (1) {
+      curtop += obj.offsetTop;
+      if (!obj.offsetParent || obj.offsetParent == container) break;
+      obj = obj.offsetParent;
+    }
+  } else if (obj.y) {
+    curtop += obj.y;
+  }
+  return curtop;
+};
+

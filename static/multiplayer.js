@@ -161,7 +161,8 @@ Multiplayer.prototype.processUpdate = function(state, full) {
       if (user.uid != this.uid) userlist[userlist.length] = user;
       var cursor_color = darkenHexColor(user.color, 0.75);
       if (!this.cursors[user.uid]) {
-        this.cursors[user.uid] = new FocusBox(cursor_color, 3, 3);
+        this.cursors[user.uid] = new FocusBox(cursor_color, 3, 3,
+          $('focusbase'));
       } else {
         this.cursors[user.uid].setColor(cursor_color);
       }
@@ -176,7 +177,7 @@ Multiplayer.prototype.processUpdate = function(state, full) {
     for (var cuid in this.cursors) {
       if (!this.players[cuid]) {
         var cursor = this.cursors[cuid];
-        cursor.moveTo(cursor.des_x, cursor.des_y, 0, 0);
+        cursor.hide();
       }
     }
 

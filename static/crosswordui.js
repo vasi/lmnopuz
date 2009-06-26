@@ -123,11 +123,7 @@ CrosswordWidget.prototype.setFocus = function(target, flip_if_focused) {
 
 // Make the focusbox surround a given square.
 CrosswordWidget.prototype.moveFocusBoxToSquare = function(focusbox, square) {
-  focusbox.moveTo(findPosX(square.letter),
-                  findPosY(square.letter),
-                  square.td.offsetWidth-1,
-                  square.td.offsetHeight-1,
-                  true);
+  focusbox.moveToElems(square.td, null, true);
 };
 
 // Starting at square, move the focus by (dx,dy), stopping at the edge
@@ -454,11 +450,7 @@ CrosswordWidget.prototype.toggleGuessForWord = function(square) {
 
   // Expand the focus box to bound the entire word.
   var end = this.getStartSquare(square, this.direction_horiz, false);
-  var x = findPosX(start.letter);
-  var y = findPosY(start.letter);
-  var w = findPosX(end.letter) + end.letter.offsetWidth - 1 - x;
-  var h = findPosY(end.letter) + end.letter.offsetHeight - 1 - y;
-  Globals.focusbox.moveTo(x, y, w, h, false);
+  Globals.focusbox.moveToElems(start.td, end.td, false);
 
   // First, decide whether we want to convert the squares to guesses or to
   // non-guesses.
@@ -515,11 +507,7 @@ CrosswordWidget.prototype.clearWord = function(square) {
 
   // Expand the focus box to bound the entire word.
   var end = this.getStartSquare(square, this.direction_horiz, false);
-  var x = findPosX(start.letter);
-  var y = findPosY(start.letter);
-  var w = findPosX(end.letter) + end.letter.offsetWidth - 1 - x;
-  var h = findPosY(end.letter) + end.letter.offsetHeight - 1 - y;
-  Globals.focusbox.moveTo(x, y, w, h, false);
+  Globals.focusbox.moveToElems(start.td, end.td, false);
 
   // Go through the squares, updating them.
   for (x = start.x, y = start.y;

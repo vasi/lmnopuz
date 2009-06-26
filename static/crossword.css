@@ -63,6 +63,10 @@ The focus is attached to a cell by making it a child of the cell:
   color: #999;
 }
 
+#focusbase {
+  position: relative;
+}
+
 div.focusbox {
   position: absolute;
   top: 0px;

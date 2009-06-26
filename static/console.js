@@ -26,12 +26,7 @@ function Console(max_lines, chatbox) {
         this.console.initial_message_cleared = true;
       }
       this.console.focused = true;
-      Globals.focusbox.moveTo(
-        findPosX(this),
-        findPosY(this),
-        this.offsetWidth,
-        this.offsetHeight,
-        true);
+      Globals.focusbox.moveToElems(this, null, true);
     };
     this.entry.onblur = function() {
       this.className = 'entry';

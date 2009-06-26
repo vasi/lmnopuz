@@ -80,7 +80,8 @@ function makeCrossword() {
   if (Crossword.title) page_title += " - " + Crossword.title;
   document.title = page_title;
 
-  Globals.focusbox = new FocusBox('blue', 3 /* width */ , 4 /* z-index */);
+  Globals.focusbox = new FocusBox('blue', 3 /* width */ , 4 /* z-index */,
+	$('focusbase'));
 
   Globals.widget = new CrosswordWidget;
   $('crossword').appendChild(Globals.widget.loadCrossword(Crossword));
@@ -235,6 +236,7 @@ the clues.</p>
 <p>(Click to hide this window.)</p>
 </div>
 
+<div id="focusbase">
 <table cellspacing='0' cellpadding='0' id='toptable'>
   <tr valign='top'>
     <td><div id='crossword' style='margin-right: 2ex'></div></td>
@@ -250,6 +252,7 @@ the clues.</p>
     {{/MULTIPLAYER}}
   </tr>
 </table>
+</div>
 
 </body>
 </html>
