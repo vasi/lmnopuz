@@ -68,6 +68,12 @@ class XWordInfoCrossword < Crossword
 				sq.answer = SQUARE_UNKNOWN if sq.answer == "\302\240" # non-break space
 			end
 		end
+		
+		# Find notes
+		if notediv = doc.at('#ctl00_CPHContent_NotepadDiv')
+		  Hpricot::Elements[notediv.at('b')].remove # remove 'Notepad:' leader
+		  @note = notediv.inner_text.strip
+		end
 	end
 end
 
