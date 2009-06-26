@@ -29,6 +29,11 @@ h3 {
 }
 {{/MULTIPLAYER}}
 
+.toggle {
+	float: right;
+	padding: 0 1ex;	
+}
+
 #help {
   z-index: 5;
   position: fixed;
@@ -40,7 +45,6 @@ h3 {
   background: #ffc;
   padding: 2em;
   overflow: auto;
-  visibility: hidden;
 }
 #help ul, dl {
   margin-top: 1ex;
@@ -66,14 +70,6 @@ h3 {
 {{/MULTIPLAYER}}
 <script src='crossword.js'></script>
 <script>//<![CDATA[
-
-function toggleHelp() {
-  if ($('help').style.visibility != 'visible') {
-    $('help').style.visibility = 'visible';
-  } else {
-    $('help').style.visibility = 'hidden';
-  }
-}
 
 function makeCrossword() {
   Globals = {
@@ -172,13 +168,18 @@ function handleFocus() {
   onblur='javascript:handleBlur();'
   onfocus='javascript:handleFocus();'>
 
-<div style='float:right'>
-<a onclick='toggleHelp();return false' href='#'>Help</a>
+<div class='toggle'>
+<a onclick='$("help").toggle(); return false;' href='#'>Help</a>
+</div>
+<div class='toggle' id='noteToggle'>
+<a onclick='$("note").toggle(); return false;' href='#'>Note</a>
 </div>
 
 <h1 id='title'></h1>
 
-<div id='help' onclick="toggleHelp(); return false;">
+<div id='note'>Note<br>Blah blah blah<br>blah blah</div>
+
+<div id='help' style='display:none;' onclick='$("help").toggle(); return false;'>
   <table><tr>
 <td valign='top' width='48%'>
 <h2>Basics</h2>

@@ -78,7 +78,11 @@ class Crossword
 
   WIDTHOFFSET = 0x2c   # :nodoc:
   HEADERLENGTH = 0x34  # :nodoc:
-
+  
+  # No idea what some of these mean!
+  SPECIAL_SECTIONS = %w[GRBS LTIM GEXT RUSR RTBL]
+  
+  public
   # Parse a .puz file.
   def parse(file, do_checksum=false)
     data = file.read
@@ -101,29 +105,40 @@ class Crossword
     dashes = data[ofs, @width*@height]  # we don't use this ?
     ofs += dashes.length
 
+    # Read the metadata and clues
+    # A note *may* follow immediately after the clues, but there could also be
+    # nothing after, or a special section
+    stringoff = ofs
     stringdata = data[ofs..-1]
-    if idx = stringdata.index("\0\0")
-      extradata = stringdata[idx+2..-1]
-      stringdata = stringdata[0,idx]
+    strings = []
+    data[ofs..-1].scan(/([^\0]+)\0*/) do |s|
+      match = s[0]
+      
+      if strings.size < cluecount + 3
+        strings << match
+      elsif @note || SPECIAL_SECTIONS.include?(match[0,4])
+        ofs += $~.begin(0) # This isn't a note, we're done
+        break
+      else
+        @note = match # Got a note, go one more round
+      end
     end
-    strings = stringdata.split(/\0/)
-
+    specials = data[ofs..-1]
+        
     if do_checksum
-      file_csum = compute_checksum(data, ofs, strings[0...(cluecount+3)])
+      file_csum = compute_checksum(data, stringoff, strings)
       unless file_csum == checksum
         raise FailedParseException, "bad checksum"
       end
     end
 
+    # Convert charset
     strings = Iconv.iconv('utf8', 'latin1', *strings)
     @title, @author, @copyright = strings.slice!(0,3)
-    if strings.length > cluecount
-      @note = strings.pop
-    end
     
     # check for circles
-    if extradata && idx = extradata.index("\0GEXT")
-      circles = extradata[idx+9, @width*@height]
+    if specials && idx = specials.index("\0GEXT")
+      circles = specials[idx+9, @width*@height]
     end
     
     # use the answer key to construct the square array,
