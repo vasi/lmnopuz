@@ -166,3 +166,7 @@ div.focusbox {
 #roster div.line span.name {
   padding: 0.2em;
 }
+
+#note {
+  padding: 1ex 0 2ex 0;
+}

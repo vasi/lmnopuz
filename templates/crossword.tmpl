@@ -71,6 +71,11 @@ h3 {
 <script src='crossword.js'></script>
 <script>//<![CDATA[
 
+function toggleNote() {
+	$('note').toggle();
+	handleResize();
+}
+
 function makeCrossword() {
   Globals = {
   };
@@ -80,8 +85,14 @@ function makeCrossword() {
   if (Crossword.title) page_title += " - " + Crossword.title;
   document.title = page_title;
 
+	if (Crossword.note) {
+		$('note').appendChild(document.createTextNode(Crossword.note));
+	} else {
+		$$('.note').invoke('hide');
+	}
+
   Globals.focusbox = new FocusBox('blue', 3 /* width */ , 4 /* z-index */,
-	$('focusbase'));
+		$('focusbase'));
 
   Globals.widget = new CrosswordWidget;
   $('crossword').appendChild(Globals.widget.loadCrossword(Crossword));
@@ -172,13 +183,13 @@ function handleFocus() {
 <div class='toggle'>
 <a onclick='$("help").toggle(); return false;' href='#'>Help</a>
 </div>
-<div class='toggle' id='noteToggle'>
-<a onclick='$("note").toggle(); return false;' href='#'>Note</a>
+<div class='toggle note'>
+<a onclick='toggleNote(); return false;' href='#'>Note</a>
 </div>
 
 <h1 id='title'></h1>
 
-<div id='note'>Note<br>Blah blah blah<br>blah blah</div>
+<div id='note' class='note'></div>
 
 <div id='help' style='display:none;' onclick='$("help").toggle(); return false;'>
   <table><tr>
