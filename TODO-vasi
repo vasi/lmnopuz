@@ -1,12 +1,17 @@
+Bugs:
+	- delete key in name thingy
+	- focusbox issues:
+		- overlap when they're adjacent
+		- bad zoom behavior
+
 * Crossword features
-	* Notepads
-	* Circles
 	* Rebuses
 	* Answer checksums
 
 * Browser support
 	* Safari
 		- title-flashing notification
+			* Don't flash if activity has happened since we started
 	* IE?
 
 * Cheating
@@ -36,7 +41,6 @@
 		http://www.red-sweater.com/forums/viewtopic.php?id=507
 	- Detect where Java apps are getting their crosswords? Flash apps?
 		eg: http://www.uclick.com/puzzles/tmdxi/data/
-	- Rebuses
 
 * Cleanup source
   - turn huge 'server' into multiple files
@@ -64,15 +68,5 @@
 	- Diagnose 'Got 0 response "" from server" 
 	- Allow reserving a clue?
 	- Link to home page! (both this server, and the project)
-	- Don't let someone overwrite someone else too quickly
-
-nytimes:
-	- detect scrambling
-	- check done with hash?
-	- password protect?
-
-Bugs:
-	- SPEED of animation -- is scriptaculous faster?
-	- firefox: 3 x tab => text box
-	- delete key in name thingy
-
+	- Don't let someone overwrite someone else too quickly?
+	- Password protection?
