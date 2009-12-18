@@ -15,6 +15,7 @@ require 'yaml'
 
 require 'rubypuz/puz.rb'
 require 'rubypuz/xwordinfo'
+require 'rubypuz/cyber'
 
 # Command-line flags.
 $opts = {
@@ -112,7 +113,11 @@ class CrosswordStore
   # Load a single crossword into @crosswords hash, return the name
   def load_crossword(path)
 	ext = File.extname(File.basename(path)) # extname can fail on some full paths
-	types = { '.puz' => Crossword, '.xwordinfo' => XWordInfoCrossword } # TODO: registry
+	types = {
+		'.puz' => Crossword,
+		'.xwordinfo' => XWordInfoCrossword,
+		'.cyberpresse' => CyberpresseCrossword
+	} # TODO: registry
 	klass = types[ext] or return nil # not a crossword
 	name = File.basename(path, ext)
 	
