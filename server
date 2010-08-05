@@ -15,6 +15,7 @@ require 'yaml'
 
 require 'rubypuz/puz.rb'
 require 'rubypuz/xwordinfo'
+require 'rubypuz/xpf'
 require 'rubypuz/cyber'
 
 # Command-line flags.
@@ -116,6 +117,7 @@ class CrosswordStore
 	types = {
 		'.puz' => Crossword,
 		'.xwordinfo' => XWordInfoCrossword,
+		'.xpf' => XPFCrossword,
 		'.cyberpresse' => CyberpresseCrossword
 	} # TODO: registry
 	klass = types[ext] or return nil # not a crossword
