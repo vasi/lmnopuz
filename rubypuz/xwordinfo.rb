@@ -12,16 +12,17 @@ class XWordInfoCrossword < Crossword
 	def parse(file, checksum = false)
 		doc = Hpricot(file)
 		@key_hash = doc.to_s.hash
+		cph = proc { |n| doc.at("//*[@id$='CPHContent_#{n}']") }
 		
-		@title = doc.at('#ctl00_CPHContent_TitleLabel').inner_text
+		@title = cph['TitleLabel'].inner_text
 		@author = doc.at('#xwauthor').inner_text
-		@copyright = doc.at('#ctl00_CPHContent_Copyright').inner_text
+		@copyright = cph['Copyright'].inner_text
 		
 		# Get the clues
 		%w[across down].each do |dir|
 			clues = instance_variable_set("@#{dir}", Hash.new)
 			
-			elems = doc.at("#ctl00_CPHContent_#{dir.capitalize}Clues").children
+			elems = cph["#{dir.capitalize}Clues"].children
 			until elems.empty?
 				clue_elems = []
 				while e = elems.shift
@@ -40,7 +41,7 @@ class XWordInfoCrossword < Crossword
 		end
 		
 		# Get the squares
-		table = doc.at('#ctl00_CPHContent_PuzTable')
+		table = cph['PuzTable']
 		rows = table.search('tr')
 		@height = rows.size
 		rows.each_with_index do |row, ri|
