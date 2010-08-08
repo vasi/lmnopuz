@@ -79,7 +79,7 @@ class CrosswordStore
   
   def first
     f = CrosswordEntry.first
-    [f.name, f.crossword]
+    [f.crossword, f.name]
   end
 end
 
