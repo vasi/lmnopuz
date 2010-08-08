@@ -1136,6 +1136,7 @@ def main
   opts.parse!
 
   $crossword_store = CrosswordStore.new(datadir)
+  $crossword_store.load_crosswords
 
   server = Mongrel::HttpServer.new(bind, port)
   server.register('/', FrontPageHandler.new)

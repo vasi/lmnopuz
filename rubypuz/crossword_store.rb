@@ -26,19 +26,23 @@ class CrosswordStore
       path = Pathname.new(path).realpath
       next if path.extname == '.sqlite' # it's the db
       
-      # FIXME: Figure out what needs loading
-	    load_crossword(path) or next
+      name = path.basename(path.extname).to_s
+      if ce = CrosswordEntry.find_by_name(name)
+        next if ce.created_on > path.mtime
+        ce.delete
+      end
+	    load_crossword(path)
     end
   end
 
   def load_crossword(pathname)
-    
   	types = {
   		'.puz' => Crossword,
   		'.xwordinfo' => XWordInfoCrossword,
   		'.xpf' => XPFCrossword,
   		'.cyberpresse' => CyberpresseCrossword
   	} # TODO: registry
+  	
   	ext = pathname.extname
   	klass = types[ext] or raise "#{pathname.to_s} not a crossword"
   	name = pathname.basename(ext).to_s
