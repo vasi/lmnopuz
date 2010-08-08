@@ -1,3 +1,5 @@
+require 'active_record'
+
 require 'rubypuz/puz'
 require 'rubypuz/xwordinfo'
 require 'rubypuz/xpf'
