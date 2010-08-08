@@ -1,3 +1,5 @@
+require 'rubygems'
+
 require 'active_record'
 
 require 'rubypuz/puz'
@@ -5,64 +7,79 @@ require 'rubypuz/xwordinfo'
 require 'rubypuz/xpf'
 require 'rubypuz/cyber'
 
-# CrosswordStore supplies the actual crossword data, allowing enumerating
-# crosswords and fetching a given crossword by name.
+class CrosswordEntry < ActiveRecord::Base
+  serialize :crossword
+end
+
 class CrosswordStore
   attr_reader :crosswords
 
-  def initialize(datapath)
-    refresh(datapath)
+  def initialize(datapath = nil)
+    ENV['DATADIR'] = (datapath ||= ENV['DATADIR']) or raise 'No DATADIR'
+    @datadir = datapath
+    load './environment.rb'
   end
 
-  def refresh(datapath)
-    # All available crosswords, mapping file basename => Puz obj
-    @crosswords = {}
-    load_crosswords datapath
-  end
-
-  # Load all the crosswords found in the datadir path.
-  def load_crosswords(datapath)
-    print "Loading crosswords... "; $stdout.flush
-    crossword_count = 0
-    Dir["#{datapath}/*"].sort.each do |path|
-	  name = load_crossword(path) or next
-      print "#{name} "; $stdout.flush
-      crossword_count += 1
-    end
-    if crossword_count < 1
-      puts "no crosswords found.  (Specify a data path with --data.)"
-      exit 1
-    else
-      puts  # finish off "loading..." line.
+  # Update database
+  def load_crosswords
+    Dir["#@datadir/*"].sort.each do |path|
+      path = Pathname.new(path).realpath
+      next if path.extname == '.sqlite' # it's the db
+      
+      # FIXME: Figure out what needs loading
+	    load_crossword(path) or next
     end
   end
 
-  # Load a single crossword into @crosswords hash, return the name
-  def load_crossword(path)
-	ext = File.extname(File.basename(path)) # extname can fail on some full paths
-	types = {
-		'.puz' => Crossword,
-		'.xwordinfo' => XWordInfoCrossword,
-		'.xpf' => XPFCrossword,
-		'.cyberpresse' => CyberpresseCrossword
-	} # TODO: registry
-	klass = types[ext] or return nil # not a crossword
-	name = File.basename(path, ext)
+  def load_crossword(pathname)
+    
+  	types = {
+  		'.puz' => Crossword,
+  		'.xwordinfo' => XWordInfoCrossword,
+  		'.xpf' => XPFCrossword,
+  		'.cyberpresse' => CyberpresseCrossword
+  	} # TODO: registry
+  	ext = pathname.extname
+  	klass = types[ext] or raise "#{pathname.to_s} not a crossword"
+  	name = pathname.basename(ext).to_s
+    puts "Loading crossword #{name}"
 	
     crossword = klass.new
-    File::open(path) { |f| crossword.parse(f) }
-    @crosswords[name] = crossword
-    return name
+    pathname.open { |f| crossword.parse(f) }
+    
+    CrosswordEntry.create(
+      :name => name,
+      :title => crossword.title,
+      :filename => pathname.to_s,
+      :crossword => crossword
+    )
   end
 
   def in_order
-    @crosswords.to_a.sort_by { |name, crossword| crossword.title }
+    CrosswordEntry.find(:all, :order => 'title').map do |ce|
+      [ce.name, ce.crossword]
+    end
   end
 
-  def include? cw
-    @crosswords.has_key? cw
+  def include? name
+    CrosswordEntry.exists?(:name => name)
   end
-  def get_crossword cw
-    @crosswords[cw]
+  
+  def get_crossword name
+    CrosswordEntry.find_by_name(name).crossword
   end
+  
+  def count
+    CrosswordEntry.count
+  end
+  
+  def first
+    f = CrosswordEntry.first
+    [f.name, f.crossword]
+  end
+end
+
+if $0 == __FILE__
+  store = CrosswordStore.new
+  store.load_crosswords
 end

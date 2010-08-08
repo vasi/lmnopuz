@@ -721,8 +721,7 @@ class SessionManager
 
     if $opts[:debug] and not @sessions['test']
       @sessions['test'] = SessionState.new
-      @sessions['test'].load_crossword($crossword_store.crosswords.values[0],
-                                       $crossword_store.crosswords.keys[0])
+      @sessions['test'].load_crossword(*$crossword_store.first)
     end
 
     # Back up session states to disk periodically.
@@ -1098,7 +1097,7 @@ class FrontPageHandler < HttpHandler
 
     serve_templated_page(response, 'lmnopuz', 'LMNOPUZ', 0,
         'frontpage',
-        { :numcrosswords => $crossword_store.crosswords.size,
+        { :numcrosswords => $crossword_store.count,
           :multi => !$opts[:singleplayer]
         })
   end

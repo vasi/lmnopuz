@@ -1,5 +1,5 @@
 task :environment do
-  require './environment.rb'
+  load './environment.rb'
 end
 
 namespace :db do
