@@ -49,7 +49,6 @@ class XPFCrossword < Crossword
 			__send__(dir)[num] = clue.inner_text
 			# TODO: Do something with ans (rebus?)
 		end
-		puts @across[1]
 		
 		# TODO: Rebus, Notepad, Circle, Shade
 	end
