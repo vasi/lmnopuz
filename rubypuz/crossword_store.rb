@@ -12,7 +12,9 @@ class CrosswordEntry < ActiveRecord::Base
 end
 
 class CrosswordStore
-  attr_reader :crosswords
+  class InvalidCrossword < Exception; end
+  
+  attr_reader :crosswords, :datadir
 
   def initialize(datapath = nil)
     ENV['DATADIR'] = (datapath ||= ENV['DATADIR']) or raise 'No DATADIR'
@@ -31,11 +33,11 @@ class CrosswordStore
         next if ce.created_on > path.mtime
         ce.delete
       end
-	    load_crossword(path)
+	    load_crossword(path, false)
     end
   end
 
-  def load_crossword(pathname)
+  def load_crossword(pathname, overwrite = true)
   	types = {
   		'.puz' => Crossword,
   		'.xwordinfo' => XWordInfoCrossword,
@@ -44,10 +46,14 @@ class CrosswordStore
   	} # TODO: registry
   	
   	ext = pathname.extname
-  	klass = types[ext] or raise "#{pathname.to_s} not a crossword"
+  	klass = types[ext] or raise InvalidCrossword.new('Not a crossword')
   	name = pathname.basename(ext).to_s
+    
+    if overwrite && cw = CrosswordEntry.find_by_name(name)
+      cw.delete
+    end
+    
     puts "Loading crossword #{name}"
-	
     crossword = klass.new
     pathname.open { |f| crossword.parse(f) }
     
