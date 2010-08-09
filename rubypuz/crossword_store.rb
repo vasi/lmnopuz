@@ -19,7 +19,7 @@ class CrosswordStore
   def initialize(datapath = nil)
     ENV['DATADIR'] = (datapath ||= ENV['DATADIR']) or raise 'No DATADIR'
     @datadir = datapath
-    load './environment.rb'
+    load 'environment.rb'
   end
 
   # Update database
