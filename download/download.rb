@@ -5,7 +5,7 @@ $LOAD_PATH << parent << parent.parent
 
 require 'rubypuz/crossword_store'
 require 'downloader'
-require 'wanted'
+begin; require 'wanted'; rescue MissingSourceFile; end
 
 datadir = ARGV.shift || ENV['DATADIR']
 store = CrosswordStore.new(datadir)

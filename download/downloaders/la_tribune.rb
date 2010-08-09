@@ -1,3 +1,4 @@
+# LA Tribune crosswords
 class LATribune < Downloader
   def date_pattern; 'lat%y%m%d'; end
   def extension; 'puz'; end

@@ -1,3 +1,6 @@
+# La Press french crosswords.
+#
+# They have a strange form, some squares (in short segments) have no crosses.
 class Cyberpresse < Downloader
   def date_pattern; 'cp%j'; end
   def extension; 'cyberpresse'; end
