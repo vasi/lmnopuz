@@ -167,10 +167,10 @@ Console.prototype.clickLastLink = function() {
 };
 
 Console.prototype.setHeight = function(height) {
-  if (this.entry)
-    this.scroller.style.height = height - this.entry.clientHeight;
-  else
-    this.scroller.style.height = height;
+  if (this.entry) {
+    height -= this.entry.clientHeight;
+  }
+  this.scroller.style.height = height + 'px';
 };
 
 function log(str, timestamp) {

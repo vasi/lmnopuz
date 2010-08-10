@@ -31,10 +31,10 @@ FocusBox.prototype.setColor = function(color) {
 };
 
 FocusBox.prototype.drawEdge = function(edge, left, top, width, height) {
-  edge.style.left = left;
-  edge.style.top = top;
-  edge.style.width = width;
-  edge.style.height = height;
+  edge.style.left = left + 'px';
+  edge.style.top = top + 'px';
+  edge.style.width = width + 'px';
+  edge.style.height = height + 'px';
 };
 
 FocusBox.prototype.drawBox = function(x, y, w, h) {

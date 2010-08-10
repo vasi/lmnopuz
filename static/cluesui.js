@@ -114,8 +114,8 @@ CluesUI.prototype.setHeight = function(height) {
   for (var i = 0; i < 2; i++) {
     var cluebox = this.container.childNodes[i];
     var heading_height = cluebox.childNodes[0].offsetHeight;
-    cluebox.style.height = cluebox_height;
-    cluebox.childNodes[1].style.height = cluebox_height - heading_height;
+    cluebox.style.height = cluebox_height + 'px';
+    cluebox.childNodes[1].style.height = (cluebox_height - heading_height) + 'px';
   }
 };
 

@@ -113,11 +113,11 @@ Roster.prototype.updateDisplayedName = function(name, color) {
 
 // Resize the console and its contents to the specified height.
 Roster.prototype.setHeight = function(height) {
-  this.container.style.height = height;
+  this.container.style.height = height + 'px';
 
   // We make the scroller take up all space in the container available
   // for clients, minus the actual size (including borders and margins)
   // of the name div, minus the size of the border around the scroller.
   this.scroller.style.height =
-    this.container.clientHeight - this.namediv.offsetHeight - 1;
+    (this.container.clientHeight - this.namediv.offsetHeight - 1) + 'px';
 };
