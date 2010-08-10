@@ -125,7 +125,7 @@ function makeCrossword() {
 };
 
 function handleResize() {
-  Globals.clues.setHeight($('crossword').childNodes[0].clientHeight);
+  Globals.clues.setHeight($('crossword').childNodes[0].offsetHeight);
 
   // Resize the console to take up all available space in the window.  To
   // do this, we subtract from the window height the console's top offset
@@ -138,7 +138,7 @@ function handleResize() {
 
   // Make the roster the same height as the console.
   if (Globals.roster)
-    Globals.roster.setHeight($('console').childNodes[0].clientHeight);
+    Globals.roster.setHeight($('console').childNodes[0].offsetHeight);
 
   // Make the width of the console/roster table match that of the
   // crossword/clues table.

@@ -190,7 +190,7 @@ Multiplayer.prototype.processUpdate = function(state, full) {
     for (var i = 0; i < state.cursors.length; i += 3) {
       var x = state.cursors.charCodeAt(i);
       var y = state.cursors.charCodeAt(i+1);
-      var uid = state.cursors[i+2];
+      var uid = state.cursors.charAt(i+2);
       if (uid == this.uid) continue;
       //log("user " + uid + " at (" + x + ", " + y + ")");
       var square = this.widget.square(x, y);
@@ -230,9 +230,9 @@ Multiplayer.prototype.processUpdate = function(state, full) {
     for (var i = 0; i < state.cells.length; i += 4) {
       var x = state.cells.charCodeAt(i);
       var y = state.cells.charCodeAt(i+1);
-      var letter = state.cells[i+2];
+      var letter = state.cells.charAt(i+2);
       var ch = state.cells.charCodeAt(i+2);
-      var owner = state.cells[i+3];
+      var owner = state.cells.charAt(i+3);
       var square = this.widget.square(x, y);
       if (!square) continue;
       square.fill(
