@@ -24,9 +24,10 @@ function Roster() {
 
   this.nameinput = document.createElement('input');
   this.nameinput.className = 'nameinput';
-  this.nameinput.onkeypress = function(e) {
-    return Globals.roster.handleNameKeyPress(e);
-  };
+  $(this.nameinput).observe('keydown', 
+    this.handleNameKeyPress.bindAsEventListener(this));
+  $(this.nameinput).observe('keypress', 
+    this.handleNameKeyPress.bindAsEventListener(this));
   this.nameinput.setAttribute('type', 'text');
   this.nameinput.setAttribute('size', 16);
   this.nameinput.setAttribute('maxlength', 16);

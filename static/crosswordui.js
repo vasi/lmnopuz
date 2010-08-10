@@ -71,15 +71,6 @@ CrosswordWidget.prototype.loadCrossword = function(crossword) {
   table.appendChild(tbody);
   this.tbody = tbody;
 
-  // Hack -- we need something to focus when we want to take the focus away
-  // from other input widgets (console, roster, etc.).  Focusing non-input
-  // elements doesn't seem to do anything, so we create an invisible input
-  // to use.  At least in Firefox, inputs with display: none don't appear
-  // to receive any events but can still take the focus.
-  this.hiddeninput = document.createElement('input');
-  this.hiddeninput.style.display = 'none';
-  document.body.appendChild(this.hiddeninput);
-
   $(document).observe('keypress', this.keyPress.bindAsEventListener(this));
   $(document).observe('keydown', this.keyDown.bindAsEventListener(this));
   $(document).observe('mousedown', this.focus.bind(this));
@@ -557,7 +548,6 @@ CrosswordWidget.prototype.setCorrect = function() {
 };
 
 CrosswordWidget.prototype.focus = function() {
-  this.hiddeninput.focus();
   this.moveFocusBoxToSquare(Globals.focusbox, this.focused);
 };
 

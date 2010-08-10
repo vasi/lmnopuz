@@ -22,7 +22,6 @@ function Console(max_lines, chatbox) {
       if (!this.console.initial_message_cleared) {
         this.value = '';
         this.style.color = '';
-        this.onclick = undefined;
         this.console.initial_message_cleared = true;
       }
       this.console.focused = true;
