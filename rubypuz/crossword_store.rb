@@ -67,7 +67,9 @@ class CrosswordStore
 
   def in_order
     CrosswordEntry.find(:all, :order => 'title').map do |ce|
-      [ce.name, ce.crossword]
+      title = ce.title
+      title = ce.name if title.empty?
+      [ce.name, title]
     end
   end
 

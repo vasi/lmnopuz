@@ -976,8 +976,8 @@ class SessionHandler < HttpHandler
     case request.params['REQUEST_METHOD']
     when 'GET'
       # Show the "select crossword" form.
-      entries = $crossword_store.in_order.map do |name, crossword|
-        { :name => name, :title => crossword.title }
+      entries = $crossword_store.in_order.map do |name, title|
+        { :name => name, :title => title }
       end
       serve_templated_page(response, 'New Session', 'SETUP', 2,
           'newsession',
@@ -1051,9 +1051,7 @@ class CrosswordHandler < HttpHandler
   def req_list(request, response)
     serve_templated_page(response, 'Choose Crossword', 'CROSSWORDS', 1,
         'crosswordlist',
-        { :crossword => $crossword_store.in_order.map do |name, crossword|
-            title = crossword.title
-            title = name if title.empty?
+        { :crossword => $crossword_store.in_order.map do |name, title|
             { :url => name, :title => title }
           end
         })
