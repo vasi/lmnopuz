@@ -24,7 +24,7 @@ class CrosswordStore
 
   # Update database
   def load_crosswords
-    entries = CrosswordEntry.find(:all, :select => %w[id name created_on]).
+    entries = CrosswordEntry.find(:all, :select => 'id, name, created_on').
       inject({}) { |h,e| h[e.name] = e; h }
     
     Dir["#@datadir/*"].sort.each do |path|
@@ -70,7 +70,7 @@ class CrosswordStore
 
   def in_order
     CrosswordEntry.find(:all, :order => 'title',
-        :select => %w[title name]).map do |ce|
+        :select => 'title, name').map do |ce|
       title = ce.title
       title = ce.name if title.empty?
       [ce.name, title]
