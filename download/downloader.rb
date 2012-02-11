@@ -57,7 +57,9 @@ class Downloader
   attr_reader :initial_days
   
   def initialize(opts = {})
-    @initial_days = opts[:initial_days] || DEFAULT_INITIAL_DAYS
+    @initial_days = opts[:initial_days]
+    @initial_days ||= ENV['INITIAL_DAYS'].to_i if ENV.include? 'INITIAL_DAYS'
+    @initial_days ||= DEFAULT_INITIAL_DAYS
     @oldest = opts[:oldest] || self.oldest
   end
   
