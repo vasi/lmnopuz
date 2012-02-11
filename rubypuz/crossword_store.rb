@@ -22,14 +22,22 @@ class CrosswordStore
     load 'environment.rb'
   end
 
+	CrosswordTypes = {
+		'.puz' => Crossword,
+		'.xwordinfo' => XWordInfoCrossword,
+		'.xpf' => XPFCrossword,
+		'.cyberpresse' => CyberpresseCrossword
+	} # TODO: registry
+  
   # Update database
   def load_crosswords
     entries = CrosswordEntry.find(:all, :select => 'id, name, created_on').
       inject({}) { |h,e| h[e.name] = e; h }
     
-    Dir["#@datadir/*"].sort.each do |path|
-      path = Pathname.new(path).realpath
-      next if path.extname == '.sqlite' # it's the db
+    dir = Pathname.new(@datadir)
+    dir.children.sort.map { |p| p.realpath }.each do |path|
+      next unless path.file?
+      next unless CrosswordTypes.include?(path.extname)
       
       name = path.basename(path.extname).to_s
       if ce = entries[name]
@@ -41,15 +49,9 @@ class CrosswordStore
   end
 
   def load_crossword(pathname, overwrite = true)
-  	types = {
-  		'.puz' => Crossword,
-  		'.xwordinfo' => XWordInfoCrossword,
-  		'.xpf' => XPFCrossword,
-  		'.cyberpresse' => CyberpresseCrossword
-  	} # TODO: registry
-  	
   	ext = pathname.extname
-  	klass = types[ext] or raise InvalidCrossword.new('Not a crossword')
+  	klass = CrosswordTypes[ext] or
+  	  raise InvalidCrossword.new('Not a crossword')
   	name = pathname.basename(ext).to_s
     
     if overwrite && cw = CrosswordEntry.find_by_name(name)
