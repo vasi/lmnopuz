@@ -550,7 +550,7 @@ class SessionState
       # up the username to make the titlebar flash... kinda cheesy.)
       msg = "#{user.get_html ':'} " + linkify_message(vals[0].xml_escape)
       @messages.add(msg, uid)
-      give_up uid if vals[0] =~ /^\s*i\s+give\s+up[.!]?\s*$/
+      give_up uid if vals[0] =~ /^\s*i\s+give\s+up[.!]?\s*$/i
     when "disconnect"
       drop_user uid, true
     else
