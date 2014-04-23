@@ -34,9 +34,9 @@ $debug_http = false
 # Crash if a thread sees an exception.
 Thread.abort_on_exception = true
 
-# crossword_to_hash: given a RubyPuz Crossword object, convert it into
+# crossword_to_hash: given a CrosswordEntry object, convert it into
 # a hash suitable for JSON'ing over to the JS client.
-def crossword_to_hash cw
+def crossword_to_hash ce
   # We pass the clues list as an array instead of a hash because we
   # want the clues in order.
   def make_clueslist(clues)
@@ -51,8 +51,9 @@ def crossword_to_hash cw
     end
   end
   
+  cw = ce.crossword
   {
-    'title'     => cw.title,
+    'title'     => ce.title_readable,
     'author'    => cw.author,
     'copyright' => cw.copyright,
     'width'     => cw.width,
@@ -78,7 +79,7 @@ end
 
 # SessionState holds the state of a crossword in a multiplayer session.
 class SessionState
-  attr_reader :cells, :crossword, :roster
+  attr_reader :cells, :crossword, :crossword_entry, :roster
 
   # By default, players are dropped if this many seconds elapse between the
   # end of one state poll and the beginning of the next one.
@@ -266,8 +267,9 @@ class SessionState
     end
   end
 
-  def load_crossword(crossword, crossword_name)
-    @crossword = crossword
+  def load_crossword(ce, crossword_name)
+    @crossword_entry = ce
+    @crossword = ce.crossword
     @crossword_name = crossword_name
     raise "CrosswordState load: nil crossword!" unless crossword
     @cells = (0...@crossword.width).map do
@@ -309,12 +311,12 @@ class SessionState
       return
     end
 
-    crossword = crossword_store.get_crossword name
-    if not crossword
+    ce = crossword_store.get_entry name
+    if not ce
       puts "Couldn't find crossword '#{name}' to restore session"
       return
     end
-    load_crossword crossword, name
+    load_crossword ce, name
 
     s['cell_rows'].each_with_index do |r, y|
       r.split('').each_with_index do |ch, x|
@@ -967,7 +969,7 @@ class SessionHandler < HttpHandler
       req_update(request, response, session, request.body.read)
     else
       @crossword_handler.req_crossword(request, response,
-                                       session.crossword, path, true)
+                                       session.crossword_entry, path, true)
     end
   end
 
@@ -989,7 +991,7 @@ class SessionHandler < HttpHandler
       raise NotFound unless params.has_key? 'crossword'
       cw = params['crossword'][0]
       raise NotFound unless $crossword_store.include? cw
-      session.load_crossword($crossword_store.get_crossword(cw), cw)
+      session.load_crossword($crossword_store.get_entry(cw), cw)
 
       # reload the current page.
       redirect_to(request, response, request.params['REQUEST_PATH'])
@@ -1058,7 +1060,7 @@ class CrosswordHandler < HttpHandler
   end
 
   # Process a request for a specific crossword.
-  def req_crossword(request, response, crossword, path, multiplayer)
+  def req_crossword(request, response, ce, path, multiplayer)
     return redirect_with_slash(request, response) if path.empty?
     case path.shift
     when ''
@@ -1071,7 +1073,7 @@ class CrosswordHandler < HttpHandler
     when 'crossword.js'
       response.start do |head, out|
         out.print("var Crossword = " +
-                  crossword_to_hash(crossword).to_json +
+                  crossword_to_hash(ce).to_json +
                   ";")
       end
     else
@@ -1083,9 +1085,9 @@ class CrosswordHandler < HttpHandler
   def req_main(request, response, path)
     crossword_name = path.shift
     unless crossword_name.empty?
-      crossword = $crossword_store.get_crossword(crossword_name)
-      raise NotFound unless crossword
-      req_crossword(request, response, crossword, path, false)
+      ce = $crossword_store.get_entry(crossword_name)
+      raise NotFound unless ce
+      req_crossword(request, response, ce, path, false)
     else
       req_list(request, response)
     end

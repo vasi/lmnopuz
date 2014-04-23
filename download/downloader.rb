@@ -38,7 +38,7 @@ class Downloader
   end
   
   def date_pattern; end
-  def extension; 'puz'; end  
+  def extension; 'puz'; end
   def newest; Date.today; end
   def self.wanted(argv); []; end # Downloaders to use
   
@@ -80,6 +80,14 @@ class Downloader
     store.load_crossword(path, true) # overwrite old ones
   end
   
+  
+  def self.inherited(sub); (@@descendants ||= []) << sub; end
+  def self.downloaders
+    @@downloaders ||= begin
+      self.load_downloaders
+      @@descendants.map { |d| d.new }
+    end
+  end
   def self.load_downloaders
     Pathname.new(__FILE__).parent.join('downloaders').children.grep(/\.rb$/).
       each { |f| require f }
@@ -87,5 +95,26 @@ class Downloader
   
   def self.update_all(argv, store)
     self.wanted(argv).each { |d| d.update(store) }
+  end
+  
+  def name; self.class.name; end
+  def title(cw); cw.title; end
+  def parse_date(basename)
+    Date.strptime(basename, date_pattern)
+  end
+  def recognize(basename, cw)
+    { :date => parse_date(basename),
+      :source => name,
+      :title => title(cw) }
+  end
+  
+  def self.recognize(basename, cw)
+    self.downloaders.each do |w|
+      begin
+        return w.recognize(basename, cw)
+      rescue ArgumentError
+      end
+    end
+    return nil
   end
 end

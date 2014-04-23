@@ -8,8 +8,20 @@ require 'rubypuz/xpf'
 require 'rubypuz/jpz'
 require 'rubypuz/cyber'
 
+require 'download/downloader'
+
+
 class CrosswordEntry < ActiveRecord::Base
   serialize :crossword
+  
+  def date_readable
+    date && date.strftime('%Y-%m-%d %a')
+  end
+  
+  def title_readable
+    parts = [source, date_readable, title].compact
+    parts.empty? ? name : parts.join(' - ')
+  end
 end
 
 class CrosswordStore
@@ -68,20 +80,20 @@ class CrosswordStore
       pathname.open { |f| crossword.parse(f) }
     end
     
-    CrosswordEntry.create(
-      :name => name,
-      :title => crossword.title,
-      :filename => pathname.to_s,
-      :crossword => crossword
-    )
+    obj = { :name => name,
+            :title => crossword.title,
+            :filename => pathname.to_s,
+            :crossword => crossword }
+    rec = Downloader.recognize(name, crossword)
+    obj.merge!(rec) if rec
+    
+    CrosswordEntry.create(obj)
   end
 
   def in_order
-    CrosswordEntry.find(:all, :order => 'title',
-        :select => 'title, name').map do |ce|
-      title = ce.title
-      title = ce.name if title.empty?
-      [ce.name, title]
+    CrosswordEntry.find(:all, :order => 'source, date, title',
+        :select => 'name, title, source, date').map do |ce|
+      [ce.name, ce.title_readable]
     end
   end
 
@@ -90,7 +102,10 @@ class CrosswordStore
   end
   
   def get_crossword name
-    CrosswordEntry.find_by_name(name).crossword
+    get_entry(name).crossword
+  end
+  def get_entry name
+    CrosswordEntry.find_by_name(name)
   end
   
   def count

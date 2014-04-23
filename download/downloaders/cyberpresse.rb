@@ -4,6 +4,7 @@
 class Cyberpresse < Downloader
   def date_pattern; 'cp%j'; end
   def extension; 'cyberpresse'; end
+  def title(cw); nil; end
   
   def oldest
     # Only 7 days available
