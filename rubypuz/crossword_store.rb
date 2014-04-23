@@ -5,6 +5,7 @@ require 'active_record'
 require 'rubypuz/puz'
 require 'rubypuz/xwordinfo'
 require 'rubypuz/xpf'
+require 'rubypuz/jpz'
 require 'rubypuz/cyber'
 
 class CrosswordEntry < ActiveRecord::Base
@@ -26,7 +27,8 @@ class CrosswordStore
 		'.puz' => Crossword,
 		'.xwordinfo' => XWordInfoCrossword,
 		'.xpf' => XPFCrossword,
-		'.cyberpresse' => CyberpresseCrossword
+		'.cyberpresse' => CyberpresseCrossword,
+    '.jpz' => JPZCrossword,
 	} # TODO: registry
   
   # Update database
