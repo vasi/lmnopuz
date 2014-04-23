@@ -62,7 +62,11 @@ class CrosswordStore
     
     puts "Loading crossword #{name}"
     crossword = klass.new
-    pathname.open { |f| crossword.parse(f) }
+    if crossword.respond_to?(:open)
+      crossword.open(pathname.to_s)
+    else
+      pathname.open { |f| crossword.parse(f) }
+    end
     
     CrosswordEntry.create(
       :name => name,

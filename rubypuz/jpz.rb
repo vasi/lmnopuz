@@ -1,5 +1,6 @@
 require 'rubypuz/puz'
 require 'nokogiri'
+require 'zip'
 
 class JPZCrossword < Crossword
   # Figure out if a clue list is down or accross
@@ -16,6 +17,13 @@ class JPZCrossword < Crossword
     else
       raise "Can't orientate clue list"
     end
+  end
+  
+  def open(filename)
+    # May be a zip file, or raw xml
+    entry = Zip::ZipInputStream.open(filename).get_next_entry
+    io = entry ? entry.get_input_stream : File.open(filename)
+    parse(io)
   end
   
 	def parse(file, checksum = false)
