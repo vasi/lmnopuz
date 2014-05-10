@@ -756,7 +756,6 @@ class SessionManager
   end
 
   def new_session name
-    name.gsub! /[^-_\w]/, '_'
     @sessions[name] = SessionState.new
   end
 end
@@ -1004,7 +1003,7 @@ class SessionHandler < HttpHandler
     unless @sessmgr.sessions.empty?
       sessions = {
         :session => @sessmgr.sessions.keys.sort.map do |sess|
-          { :url => "#{sess}/", :name => sess,
+          { :url => "#{sess}/", :name => CGI.unescape(sess),
             :users => @sessmgr.get_session(sess).roster.user_count }
         end
       }
@@ -1018,8 +1017,7 @@ class SessionHandler < HttpHandler
   # Process a POST to create a new game.
   def req_new_game(request, response, params)
     raise NotFound unless params.has_key? 'name'
-    name = params['name'][0]
-    raise NotFound unless name =~ /^\w+$/
+    name = CGI.escape(params['name'][0])
     unless @sessmgr.get_session(name)
       # Right here we could make the remote user the owner of the session
       # or something...
