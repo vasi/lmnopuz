@@ -3,21 +3,17 @@ require 'rubygems'
 require 'active_record'
 
 require 'rubypuz/puz'
-require 'rubypuz/xwordinfo'
-require 'rubypuz/xpf'
-require 'rubypuz/jpz'
-require 'rubypuz/cyber'
 
 require 'download/downloader'
 
 
 class CrosswordEntry < ActiveRecord::Base
   serialize :crossword
-  
+
   def date_readable
     date && date.strftime('%Y-%m-%d %a')
   end
-  
+
   def title_readable
     parts = [source, date_readable, title].compact
     parts.empty? ? name : parts.join(' - ')
@@ -25,8 +21,6 @@ class CrosswordEntry < ActiveRecord::Base
 end
 
 class CrosswordStore
-  class InvalidCrossword < Exception; end
-  
   attr_reader :crosswords, :datadir
 
   def initialize(datapath = nil)
@@ -35,24 +29,16 @@ class CrosswordStore
     load 'environment.rb'
   end
 
-	CrosswordTypes = {
-		'.puz' => Crossword,
-		'.xwordinfo' => XWordInfoCrossword,
-		'.xpf' => XPFCrossword,
-		'.cyberpresse' => CyberpresseCrossword,
-    '.jpz' => JPZCrossword,
-	} # TODO: registry
-  
   # Update database
   def load_crosswords
     entries = CrosswordEntry.find(:all, :select => 'id, name, created_on').
       inject({}) { |h,e| h[e.name] = e; h }
-    
+
     dir = Pathname.new(@datadir)
     dir.children.sort.map { |p| p.realpath }.each do |path|
       next unless path.file?
-      next unless CrosswordTypes.include?(path.extname)
-      
+      next unless Crossword.crossword?(path)
+
       name = path.basename(path.extname).to_s
       if ce = entries[name]
         next if ce.created_on > path.mtime
@@ -63,30 +49,21 @@ class CrosswordStore
   end
 
   def load_crossword(pathname, overwrite = true)
-  	ext = pathname.extname
-  	klass = CrosswordTypes[ext] or
-  	  raise InvalidCrossword.new('Not a crossword')
-  	name = pathname.basename(ext).to_s
-    
+  	name = pathname.basename(pathname.extname).to_s
     if overwrite && cw = CrosswordEntry.find_by_name(name)
       cw.delete
     end
-    
+
     puts "Loading crossword #{name}"
-    crossword = klass.new
-    if crossword.respond_to?(:open)
-      crossword.open(pathname.to_s)
-    else
-      pathname.open { |f| crossword.parse(f) }
-    end
-    
+    crossword = Crossword.parse(pathname)
+
     obj = { :name => name,
             :title => crossword.title,
             :filename => pathname.to_s,
             :crossword => crossword }
     rec = Downloader.recognize(name, crossword)
     obj.merge!(rec) if rec
-    
+
     CrosswordEntry.create(obj)
   end
 
@@ -100,18 +77,18 @@ class CrosswordStore
   def include? name
     CrosswordEntry.exists?(:name => name)
   end
-  
+
   def get_crossword name
     get_entry(name).crossword
   end
   def get_entry name
     CrosswordEntry.find_by_name(name)
   end
-  
+
   def count
     CrosswordEntry.count
   end
-  
+
   def first
     f = CrosswordEntry.first
     [f.crossword, f.name]

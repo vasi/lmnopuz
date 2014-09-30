@@ -29,9 +29,31 @@ require 'iconv'
 
 # A crossword.
 class Crossword
+  # See registry of CrosswordTypes at the end
+
+  class InvalidCrossword < Exception; end
+
+  def self.crossword?(file)
+    return CrosswordTypes[File.extname(file.to_s)]
+  end
+
+  def self.parse(file)
+    klass = CrosswordTypes[File.extname(file.to_s)] or
+      raise InvalidCrossword.new('Not a crossword')
+    cw = klass.new
+
+    if cw.respond_to?(:open)
+      cw.open(file.to_s)
+    else
+      open(file.to_s) { |f| cw.parse(f) }
+    end
+    return cw
+  end
+
+
   SQUARE_UNKNOWN = '?'
   SQUARE_FILLED = '.'
-  
+
   # Title of the crossword (ISO-8859-1).
   attr_accessor :title
   # Author of the crossword (ISO-8859-1).
@@ -109,7 +131,7 @@ class Crossword
     end
 
     strings = Iconv.iconv('utf8', 'latin1', *strings)
-    
+
     clueoffset = ofs
     @title = strings.shift
     clueoffset += @title.length + 1
@@ -155,7 +177,7 @@ class Crossword
       str.each_byte do |byte|
         if sum & 1 != 0
           sum >>= 1
-          sum += 0x8000 
+          sum += 0x8000
         else
           sum >>= 1
         end
@@ -264,6 +286,21 @@ class Crossword
       puts
     end
   end
+end
+
+
+require 'rubypuz/xwordinfo'
+require 'rubypuz/xpf'
+require 'rubypuz/jpz'
+require 'rubypuz/cyber'
+class Crossword
+  CrosswordTypes = {
+    '.puz' => Crossword,
+    '.xwordinfo' => XWordInfoCrossword,
+    '.xpf' => XPFCrossword,
+    '.cyberpresse' => CyberpresseCrossword,
+    '.jpz' => JPZCrossword,
+  } # TODO: registry
 end
 
 # vim: set ts=2 sw=2 et :
