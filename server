@@ -594,7 +594,7 @@ class SessionState
               cell.version > user.letters_version
             letter = cell.guess ? cell.letter.downcase : cell.letter.upcase
             owner = cell.uid ? @roster.get_session_uid(cell.uid) : ' '
-            cells += [x, y, letter[0], owner[0]].pack('CCCC')
+            cells += [x, y, letter[0].ord, owner[0].ord].pack('CCCC')
           end
         end
       end
@@ -613,7 +613,7 @@ class SessionState
               cuser.cursor_version > user.cursors_version) and
             cuser.cursor_x and cuser.cursor_y
           suid = @roster.get_session_uid(cuid)
-          cursors += [cuser.cursor_x, cuser.cursor_y, suid[0]].pack('CCC')
+          cursors += [cuser.cursor_x, cuser.cursor_y, suid[0].ord].pack('CCC')
         end
       end
       state['cursors'] = cursors if not cursors.empty?
@@ -782,7 +782,7 @@ class HttpHandler
       @resp.status = status
       body = StringIO.new
       block[@resp.header, body]
-      @resp.body = [body.string]
+      @resp.write(body.string)
     end
 
     def redirect(path)
