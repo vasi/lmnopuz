@@ -25,8 +25,6 @@
 #
 # See Crossword for details.
 
-require 'iconv'
-
 # A crossword.
 class Crossword
   # See registry of CrosswordTypes at the end
@@ -130,7 +128,9 @@ class Crossword
       end
     end
 
-    strings = Iconv.iconv('utf8', 'latin1', *strings)
+    strings = strings.map do |s|
+      s.encode('utf8', 'latin1')
+    end
 
     clueoffset = ofs
     @title = strings.shift
