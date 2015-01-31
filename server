@@ -782,7 +782,7 @@ class HttpHandler
       @resp.status = status
       body = StringIO.new
       block[@resp.header, body]
-      @resp.body = body.string
+      @resp.body = [body.string]
     end
 
     def redirect(path)
