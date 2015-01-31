@@ -3,16 +3,16 @@
 # TODO: circles, charset, comment
 
 require 'rubypuz/puz'
-require 'hpricot'
+require 'nokogiri'
 
 class XWordInfoCrossword < Crossword
 	attr_reader :key_hash
 	
 	# ignore checksum parameter, it's meaningless for XWordInfo
 	def parse(file, checksum = false)
-		doc = Hpricot(file)
+		doc = Nokogiri::HTML(file)
 		@key_hash = doc.to_s.hash
-		cph = proc { |n| doc.at("//*[@id$='CPHContent_#{n}']") }
+		cph = proc { |n| doc.css("\#CPHContent_#{n}") }
 		
 		@title = cph['TitleLabel'].inner_text
 		@author = cph['AuthorLabel'].inner_text
@@ -26,7 +26,7 @@ class XWordInfoCrossword < Crossword
 			until elems.empty?
 				clue_elems = []
 				while e = elems.shift
-					break if Hpricot::Elem === e && e.name == "br"
+					break if Nokogiri::XML::Element === e && e.name == "br"
 					clue_elems << e
 				end
 				
@@ -52,7 +52,7 @@ class XWordInfoCrossword < Crossword
 			end
 			
 			cols.each_with_index do |cell, ci|
-				next if cell.empty? # blank square
+				next if cell.children.empty? # blank square
 				sq = @squares[ci][ri] = Square.new
 				
 				# Get the square's numbers
