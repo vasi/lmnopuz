@@ -127,7 +127,7 @@ class SessionState
     def initialize
       @version = 0  # incremented every time a user is added or changed
       @users = {}
-      @available_session_uids = ('a'..'z').map + ('A'..'Z').map
+      @available_session_uids = ('a'..'z').to_a + ('A'..'Z').to_a
       @available_colors = %w{#eea #fcb #cfc #adf #ebf}
     end
     attr_reader :users
