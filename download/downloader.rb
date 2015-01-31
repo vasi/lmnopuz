@@ -85,12 +85,14 @@ class Downloader
   def self.downloaders
     @@downloaders ||= begin
       self.load_downloaders
-      @@descendants.map { |d| d.new }
+      (@@descendants || []).map { |d| d.new }
     end
   end
   def self.load_downloaders
-    Pathname.new(__FILE__).parent.join('downloaders').children.grep(/\.rb$/).
-      each { |f| require f }
+    Pathname.new(__FILE__).parent.join('downloaders').children.each do |p|
+      next unless /\.rb$/ === p.to_s
+      require p.to_s
+    end
   end
   
   def self.update_all(argv, store)
