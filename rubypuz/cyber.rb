@@ -69,7 +69,7 @@ class CyberpresseCrossword < Crossword
 	def parse_clues(h, pref, idx)
 		str = h[pref + (idx + 1).to_s].first.sub(/\.\s+$/, '')
 		return str.split(' - ').map do |s|
-			s.encode('utf8', 'latin1')
+			s.encode('UTF-8', "ISO-8859-1")
 		end
 	end
 	

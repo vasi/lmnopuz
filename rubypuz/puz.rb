@@ -97,6 +97,7 @@ class Crossword
 
   # Parse a .puz file.
   def parse(file, do_checksum=false)
+    file.set_encoding("ISO-8859-1")
     data = file.read
     # we expect the header to contain "ACROSS&DOWN" at offset 2,
     # but some files begin with a filename followed by a newline.
@@ -129,7 +130,7 @@ class Crossword
     end
 
     strings = strings.map do |s|
-      s.encode('utf8', 'latin1')
+      s.encode('UTF-8', "ISO-8859-1")
     end
 
     clueoffset = ofs
