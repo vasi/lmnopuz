@@ -1,7 +1,5 @@
-ruby '1.8.7'
 source 'https://rubygems.org'
 gem 'json'
-gem 'mongrel'
 gem 'rack'
 gem 'i18n', '~>0.6.0'
 gem 'activerecord', '~>3.0'

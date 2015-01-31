@@ -10,7 +10,6 @@ require 'cgi'
 require 'fileutils'
 require 'json'
 require 'googtmpl'
-require 'mongrel'
 require 'optparse'
 require 'thread'
 require 'yaml'
@@ -27,9 +26,6 @@ $opts = {
   #  - add /quit handler to shut down server programmatically.
   :debug => false
 }
-
-# Tell Mongrel that we want full backtraces on errors.
-$mongrel_debug_client = true
 
 # Print verbose messages about HTTP requests.
 $debug_http = false
@@ -788,10 +784,24 @@ class HttpHandler
       block[@resp.header, body]
       @resp.body = body.string
     end
+
+    def redirect(path)
+      @resp.redirect(path)
+    end
+  end
+
+  # Adapt Mongrel request to Rack::Request
+  class Request
+    def initialize(env)
+      @req = Rack::Request.new(env)
+    end
+
+    def params; @req.env; end
+    def body; @req.body; end
   end
 
   def call(env)
-    req = Rack::Request.new(env)
+    req = Request.new(env)
     resp = Response.new
     process(req, resp)
     resp.finish
@@ -799,7 +809,7 @@ class HttpHandler
 
   def process(request, response)
     p request.params if $debug_http
-    req_path = request.path_info
+    req_path = request.params['PATH_INFO']
     puts "#{self.class.to_s} #{req_path}" if $opts[:log_http]
     puts "request path #{req_path.inspect}" if $debug_http
     return redirect_with_slash(request, response) if req_path.empty?
@@ -865,14 +875,14 @@ class HttpHandler
   def redirect_to(request, response, path)
     path = "http://" + request.params['HTTP_HOST'] + path
     puts "redirecting to #{path}" if $debug_http
-    response.socket.write(Mongrel::Const::REDIRECT % path)
+    response.redirect(path)
   end
 
   # Redirect to the same URL with a slash appended.
   def redirect_with_slash(request, response)
     path = request.params['REQUEST_URI']
     puts "#{path.inspect}: adding slash" if $debug_http
-    redirect_to(request, response, path + '/')
+    response.redirect(path + '/')
   end
 end
 
@@ -1135,11 +1145,9 @@ class FrontPageHandler < HttpHandler
 end
 
 class QuitHandler < HttpHandler
-  def initialize(server)
-    @server = server
-  end
+  attr_accessor :server
   def req_main(request, response, path)
-    @server.stop
+    @server.stop if @server
   end
 end
 
@@ -1184,22 +1192,25 @@ def main
 
   map = {}
   map['/'] = FrontPageHandler.new
+  cwh = CrosswordHandler.new
+  map['/crossword'] = cwh
+  map['/static'] = Rack::File.new('static')
+  unless $opts[:singleplayer]
+     map['/session'] = SessionHandler.new(cwh, sessiondir)
+  end
+  quit = QuitHandler.new
+  if $opts[:debug]
+     map['/quit'] = quit
+  end
+  app = Rack::URLMap.new(map)
 
-  # server = Mongrel::HttpServer.new(bind, port)
-  # server.register('/', FrontPageHandler.new)
-  # cwh = CrosswordHandler.new
-  # server.register('/crossword', cwh)
-  # server.register('/static/', Mongrel::DirHandler.new('static'))
-  # unless $opts[:singleplayer]
-  #   server.register('/session', SessionHandler.new(cwh, sessiondir))
-  # end
-  # if $opts[:debug]
-  #   server.register('/quit', QuitHandler.new(server))
-  # end
-  # puts "Waiting for connections..."
-  # server.run.join
-
-  server = Rack::Server.new(:Port => port, :app => Rack::URLMap.new(map))
+  puts "Waiting for connections..."
+  server = Rack::Server.new(
+    :Host => bind,
+    :Port => port,
+    :app => app
+  )
+  quit.server = server
   server.start
 end
 
