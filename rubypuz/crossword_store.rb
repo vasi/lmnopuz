@@ -21,6 +21,8 @@ class CrosswordEntry < ActiveRecord::Base
 end
 
 class CrosswordStore
+  class InvalidCrossword < Exception; end
+
   attr_reader :crosswords, :datadir
 
   def initialize(datapath = nil)

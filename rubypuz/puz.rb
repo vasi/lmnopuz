@@ -29,15 +29,13 @@
 class Crossword
   # See registry of CrosswordTypes at the end
 
-  class InvalidCrossword < Exception; end
-
   def self.crossword?(file)
     return CrosswordTypes[File.extname(file.to_s)]
   end
 
   def self.parse(file)
     klass = CrosswordTypes[File.extname(file.to_s)] or
-      raise InvalidCrossword.new('Not a crossword')
+      raise CrosswordStore::InvalidCrossword.new('Not a crossword')
     cw = klass.new
 
     if cw.respond_to?(:open)
