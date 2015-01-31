@@ -765,14 +765,41 @@ end
 
 $template_cache = {}
 
-# A wrapper around Mongrel's HTTP handler that adds some functionality.
-class HttpHandler < Mongrel::HttpHandler
+# Rack adapter
+class HttpHandler
   # An exception so we can pass 404s around more easily.
   class NotFound < RuntimeError; end
 
+  # Adapt Mongrel response to Rack::Response
+  class Response
+    require 'stringio'
+
+    def initialize
+      @resp = Rack::Response.new
+    end
+
+    def finish
+      @resp.finish
+    end
+
+    def start(status = 200, &block)
+      @resp.status = status
+      body = StringIO.new
+      block[@resp.header, body]
+      @resp.body = body.string
+    end
+  end
+
+  def call(env)
+    req = Rack::Request.new(env)
+    resp = Response.new
+    process(req, resp)
+    resp.finish
+  end
+
   def process(request, response)
     p request.params if $debug_http
-    req_path = request.params['PATH_INFO']
+    req_path = request.path_info
     puts "#{self.class.to_s} #{req_path}" if $opts[:log_http]
     puts "request path #{req_path.inspect}" if $debug_http
     return redirect_with_slash(request, response) if req_path.empty?
@@ -1116,14 +1143,6 @@ class QuitHandler < HttpHandler
   end
 end
 
-class App
-  def call(env)
-    resp = Rack::Response.new
-    resp.write "Hello!"
-    resp.finish
-  end
-end
-
 def main
   bind = '0.0.0.0'
   port = 2000
@@ -1163,6 +1182,9 @@ def main
   $crossword_store = CrosswordStore.new(datadir)
   $crossword_store.load_crosswords
 
+  map = {}
+  map['/'] = FrontPageHandler.new
+
   # server = Mongrel::HttpServer.new(bind, port)
   # server.register('/', FrontPageHandler.new)
   # cwh = CrosswordHandler.new
@@ -1177,7 +1199,7 @@ def main
   # puts "Waiting for connections..."
   # server.run.join
 
-  server = Rack::Server.new(:Port => port, :app => App.new)
+  server = Rack::Server.new(:Port => port, :app => Rack::URLMap.new(map))
   server.start
 end
 
