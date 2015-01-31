@@ -4,6 +4,8 @@
 
 require 'rubygems'
 
+$LOAD_PATH << File.dirname(__FILE__)
+
 require 'cgi'
 require 'fileutils'
 require 'json'
@@ -1121,19 +1123,32 @@ def main
 
   opts = OptionParser.new
   opts.banner = "Usage: #{$0} [options]"
-  opts.on('--data DIR',  'Directory containing .puz files') { |datadir| }
-  opts.on('--port PORT', 'Port to listen on') { |port| }
-  opts.on('--sessiondir DIR', 'Directory where session data is ' +
-          'saved') { |sessiondir| }
-  opts.on('--singleplayer', 'Disable multiplayer') { |$opts[:singleplayer]| }
+  opts.on('--data DIR',  'Directory containing .puz files') do |d|
+    datadir = d
+  end
+  opts.on('--port PORT', 'Port to listen on') do |p|
+    port = p
+  end
+  opts.on('--sessiondir DIR', 'Directory where session data is saved') do |d|
+    sessiondir = d
+  end
+  opts.on('--singleplayer', 'Disable multiplayer') do |s|
+    $opts[:singleplayer] = s
+  end
   opts.on('--localhost', 'Bind only to localhost') do
     puts "Listening only on local interface..."
     bind = '127.0.0.1'
   end
   opts.on('--log-http', 'Log HTTP requests (not necessary if',
-                        'running behind Apache)') { |$opts[:log_http]| }
-  opts.on('--debug', 'Debug mode (add /quit handler)') { |$opts[:debug]| }
-  opts.on('--debug-http', 'Debug HTTP') { |$debug_http| }
+                        'running behind Apache)') do |l|
+    $opts[:log_http] = l
+  end
+  opts.on('--debug', 'Debug mode (add /quit handler)') do |d|
+    $opts[:debug] = d
+  end
+  opts.on('--debug-http', 'Debug HTTP') do |d|
+    $debug_http = d
+  end
   opts.parse!
 
   $crossword_store = CrosswordStore.new(datadir)
