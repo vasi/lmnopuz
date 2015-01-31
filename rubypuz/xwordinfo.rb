@@ -15,7 +15,7 @@ class XWordInfoCrossword < Crossword
 		cph = proc { |n| doc.at("//*[@id$='CPHContent_#{n}']") }
 		
 		@title = cph['TitleLabel'].inner_text
-		@author = doc.at('#xwauthor').inner_text
+		@author = cph['AuthorLabel'].inner_text
 		@copyright = cph['Copyright'].inner_text
 		
 		# Get the clues
