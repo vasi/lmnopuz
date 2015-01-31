@@ -1,3 +1,7 @@
 .gems
 .rbenv-gemsets
 .ruby-version
+
+Gemfile.lock
+.bundle
+vendor
