@@ -90,8 +90,8 @@ class CrosswordStore
   end
 
   def first
-    f = CrosswordEntry.first
-    [f.crossword, f.name]
+    ce = CrosswordEntry.first
+    [ce, ce.name]
   end
 end
 
