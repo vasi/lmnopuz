@@ -1,6 +1,5 @@
 require 'rubypuz/puz'
 require 'cgi'
-require 'iconv'
 
 class CyberpresseCrossword < Crossword
 	# ignore checksum parameter
@@ -69,7 +68,9 @@ class CyberpresseCrossword < Crossword
 	
 	def parse_clues(h, pref, idx)
 		str = h[pref + (idx + 1).to_s].first.sub(/\.\s+$/, '')
-		Iconv.iconv('utf8', 'latin1', *str.split(' - '))
+		return str.split(' - ').map do |s|
+			s.encode('utf8', 'latin1')
+		end
 	end
 	
 	def place_numbers
