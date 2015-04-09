@@ -1,5 +1,5 @@
 class Downloader
   def self.wanted(argv)
-    [Cyberpresse.new, Jonesin.new, LATimes.new, WaPo.new]
+    [Cyberpresse.new, Jonesin.new, LATimes.new]
   end
 end
