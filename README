@@ -23,6 +23,7 @@ your existing site.  Here's how to do it with Apache's mod_proxy:
   # and rewrite its responses to the right address
   ProxyPass        /software/lmnopuz/demo/ http://localhost:2000/
   ProxyPassReverse /software/lmnopuz/demo/ http://localhost:2000/
+  ProxyPreserveHost On
 You can then bring up the server with the --localhost flag and your server
 won't publish port 2000 to the world.
 
