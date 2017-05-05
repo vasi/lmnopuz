@@ -20,8 +20,15 @@ class Downloader
     def open_args; {}; end
     def text; @text ||= download_text; end
     def download_text
+      u = uri
+      tries = 3
       begin
-        open(uri, open_args).read
+        open(u, open_args.merge(redirect: false)).read
+      rescue OpenURI::HTTPRedirect => redirect
+        # open-uri doesn't like cross-scheme redirects, so handle manually
+        raise if (tries -= 1) < 0
+        u = redirect.uri
+        retry
       rescue OpenURI::HTTPError => e
         raise CrosswordStore::InvalidCrossword.new("Download failed: #{e}")
       end
