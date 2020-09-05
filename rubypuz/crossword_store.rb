@@ -33,8 +33,8 @@ class CrosswordStore
 
   # Update database
   def load_crosswords
-    entries = CrosswordEntry.find(:all, :select => 'id, name, created_on').
-      inject({}) { |h,e| h[e.name] = e; h }
+    entries = CrosswordEntry.select('id, name, created_on').all
+      .inject({}) { |h,e| h[e.name] = e; h }
 
     dir = Pathname.new(@datadir)
     dir.children.sort.map { |p| p.realpath }.each do |path|
@@ -70,8 +70,9 @@ class CrosswordStore
   end
 
   def in_order
-    CrosswordEntry.find(:all, :order => 'source, date, title',
-        :select => 'name, title, source, date').map do |ce|
+    CrosswordEntry.order('source, date, title')
+        .select('name, title, source, date')
+        .all.map do |ce|
       [ce.name, ce.title_readable]
     end
   end
