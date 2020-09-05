@@ -1,4 +1,4 @@
-class CreateCrosswordEntries < ActiveRecord::Migration
+class CreateCrosswordEntries < ActiveRecord::Migration[4.2]
   def self.up
     create_table :crossword_entries do |t|
       t.string      :name

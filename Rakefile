@@ -8,6 +8,6 @@ namespace :db do
     require 'logger'
     ActiveRecord::Base.logger = Logger.new(STDOUT)
     ActiveRecord::Migration.verbose = true
-    ActiveRecord::Migrator.migrate("db/migrate")
+    ActiveRecord::MigrationContext.new("db/migrate", ActiveRecord::SchemaMigration).migrate
   end
 end
