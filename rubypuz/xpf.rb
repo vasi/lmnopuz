@@ -14,7 +14,8 @@ class XPFCrossword < Crossword
 	
 	# ignore checksum
 	def parse(file, checksum = false)
-		doc = Nokogiri.XML(file).at('Puzzle') # TODO: Multiple puzzles?
+		xml = Nokogiri.XML(file)
+		doc = xml.at('Puzzle') || xml.at('Crossword') # TODO: Multiple puzzles?
 		@key_hash = doc.to_s.hash
 		
 		@title = doc.at('Title').inner_text
