@@ -23,7 +23,7 @@ class Downloader
       u = uri
       tries = 3
       begin
-        open(u, open_args.merge(redirect: false)).read
+        URI.open(u, open_args.merge(redirect: false)).read
       rescue OpenURI::HTTPRedirect => redirect
         # open-uri doesn't like cross-scheme redirects, so handle manually
         raise if (tries -= 1) < 0
