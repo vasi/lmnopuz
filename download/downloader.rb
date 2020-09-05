@@ -51,11 +51,10 @@ class Downloader
   
   def oldest
     likepat = date_pattern.gsub(/(%[^%])/, '%').gsub(/%%/, '%')
-    ce = CrosswordEntry.find(:first,
-      :conditions => ['name like ?', likepat],
-      :order => 'name desc',
-      :select => 'name'
-    ) or return Date.today - initial_days + 1
+    ce = CrosswordEntry.where('name like ?', likepat)
+      .order('name desc')
+      .select('name')
+      .first or return Date.today - initial_days + 1
     Date.strptime(ce.name, date_pattern)
   end
   
